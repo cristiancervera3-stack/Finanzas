@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinanceOS — Control Financiero Personal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════
+     SIDEBAR NAVIGATION
+════════════════════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <span class="logo-icon">◈</span>
+      <span class="logo-text">FinanceOS</span>
+    </div>
+    <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Principal</div>
+    <a href="#" class="nav-item active" data-page="dashboard">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <span>Dashboard</span>
+    </a>
+    <a href="#" class="nav-item" data-page="ingresos">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 5 5 12"/></svg>
+      <span>Ingresos</span>
+    </a>
+    <a href="#" class="nav-item" data-page="gastos">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 19 19 12"/></svg>
+      <span>Gastos</span>
+    </a>
+
+    <div class="nav-section-label">Análisis</div>
+    <a href="#" class="nav-item" data-page="graficos">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <span>Gráficos</span>
+    </a>
+    <a href="#" class="nav-item" data-page="reportes">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <span>Reportes</span>
+    </a>
+    <a href="#" class="nav-item" data-page="historial">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Historial</span>
+    </a>
+    <a href="#" class="nav-item" data-page="inteligencia">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      <span>Análisis IA</span>
+    </a>
+
+    <div class="nav-section-label">Sistema</div>
+    <a href="#" class="nav-item" data-page="configuracion">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <span>Configuración</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-date" id="sidebarDate"></div>
+  </div>
+</aside>
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+<!-- ═══════════════════════════════════════════════════
+     MAIN CONTENT
+════════════════════════════════════════════════════ -->
+<main class="main-content" id="mainContent">
+
+  <!-- TOP BAR -->
+  <header class="topbar">
+    <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Open menu">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+      </svg>
+    </button>
+    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn-icon" id="refreshBtn" title="Actualizar datos">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════ PAGE: DASHBOARD ═══════ -->
+  <section class="page active" id="page-dashboard">
+    <div class="page-header">
+      <h1>Dashboard <span class="page-subtitle">Resumen financiero</span></h1>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="cards-grid" id="dashboardCards">
+      <div class="card card--income">
+        <div class="card-label">Ingresos Semanales</div>
+        <div class="card-value" id="card-ingresos-semana">$0.00</div>
+        <div class="card-sub" id="card-ingresos-semana-sub">Esta semana</div>
+      </div>
+      <div class="card card--income">
+        <div class="card-label">Ingresos Mensuales</div>
+        <div class="card-value" id="card-ingresos-mes">$0.00</div>
+        <div class="card-sub" id="card-ingresos-mes-sub">Este mes</div>
+      </div>
+      <div class="card card--expense">
+        <div class="card-label">Gastos Semanales</div>
+        <div class="card-value" id="card-gastos-semana">$0.00</div>
+        <div class="card-sub">Esta semana</div>
+      </div>
+      <div class="card card--expense">
+        <div class="card-label">Gastos Mensuales</div>
+        <div class="card-value" id="card-gastos-mes">$0.00</div>
+        <div class="card-sub">Este mes</div>
+      </div>
+      <div class="card card--savings">
+        <div class="card-label">Ahorro USD</div>
+        <div class="card-value" id="card-ahorro-usd">$0.00</div>
+        <div class="card-sub">Acumulado</div>
+      </div>
+      <div class="card card--savings">
+        <div class="card-label">Ahorro COP</div>
+        <div class="card-value" id="card-ahorro-cop">$0 COP</div>
+        <div class="card-sub">Acumulado</div>
+      </div>
+      <div class="card card--invest">
+        <div class="card-label">Inversión</div>
+        <div class="card-value" id="card-inversion">$0.00</div>
+        <div class="card-sub">Acumulado</div>
+      </div>
+      <div class="card card--available card--featured">
+        <div class="card-label">Dinero Disponible</div>
+        <div class="card-value" id="card-disponible">$0.00</div>
+        <div class="card-sub">Libre este mes</div>
+      </div>
+    </div>
+
+    <!-- Distribution preview -->
+    <div class="section-block">
+      <div class="section-title">Distribución del próximo ingreso</div>
+      <div class="distribution-bar" id="distributionBar">
+        <div class="dist-segment dist-gastos" id="dist-gastos" style="width:60%">
+          <span>Gastos 60%</span>
+        </div>
+        <div class="dist-segment dist-ahorro-usd" id="dist-ahorro-usd" style="width:20%">
+          <span>Ahorro USD 20%</span>
+        </div>
+        <div class="dist-segment dist-ahorro-cop" id="dist-ahorro-cop" style="width:10%">
+          <span>Ahorro COP 10%</span>
+        </div>
+        <div class="dist-segment dist-inversion" id="dist-inversion" style="width:10%">
+          <span>Inversión 10%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recurring expenses preview -->
+    <div class="section-block">
+      <div class="section-title">Gastos Recurrentes del Mes</div>
+      <div class="recurring-grid" id="recurringGrid"></div>
+    </div>
+
+    <!-- Quick chart -->
+    <div class="section-block">
+      <div class="section-title">Balance de los últimos 6 meses</div>
+      <div class="chart-container chart-container--sm">
+        <canvas id="chartBalanceDash"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PAGE: INGRESOS ═══════ -->
+  <section class="page" id="page-ingresos">
+    <div class="page-header">
+      <h1>Ingresos <span class="page-subtitle">Registrar nuevo ingreso</span></h1>
+    </div>
+
+    <div class="two-col">
+      <!-- Form -->
+      <div class="form-card">
+        <div class="form-card-title">Nuevo Ingreso</div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input type="date" class="form-input" id="ingreso-fecha" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <input type="text" class="form-input" id="ingreso-descripcion" placeholder="Ej: Salario quincenal" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto (USD)</label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" class="form-input input-with-prefix" id="ingreso-monto" placeholder="0.00" step="0.01" min="0" />
+          </div>
+        </div>
+        <button class="btn btn-primary" id="btnAddIngreso">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar Ingreso
+        </button>
+      </div>
+
+      <!-- Distribution preview after income -->
+      <div class="form-card">
+        <div class="form-card-title">Distribución Automática</div>
+        <div id="ingreso-preview-text" class="preview-empty">Ingresa un monto para ver la distribución</div>
+        <div id="ingreso-preview-breakdown" class="breakdown-list" style="display:none"></div>
+      </div>
+    </div>
+
+    <!-- Recent incomes table -->
+    <div class="section-block" style="margin-top:2rem">
+      <div class="section-title">Ingresos Recientes</div>
+      <div class="table-wrap">
+        <table class="data-table" id="tableIngresosRecent">
+          <thead>
+            <tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tbodyIngresosRecent"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PAGE: GASTOS ═══════ -->
+  <section class="page" id="page-gastos">
+    <div class="page-header">
+      <h1>Gastos <span class="page-subtitle">Registrar nuevo gasto</span></h1>
+    </div>
+
+    <div class="two-col">
+      <!-- Form -->
+      <div class="form-card">
+        <div class="form-card-title">Nuevo Gasto</div>
+        <div class="form-group">
+          <label class="form-label">Fecha</label>
+          <input type="date" class="form-input" id="gasto-fecha" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Categoría</label>
+          <select class="form-input" id="gasto-categoria">
+            <option value="">Seleccionar categoría</option>
+            <option value="Vivienda">🏠 Vivienda</option>
+            <option value="Alimentación">🍔 Alimentación</option>
+            <option value="Transporte">🚗 Transporte</option>
+            <option value="Gimnasio">💪 Gimnasio</option>
+            <option value="Seguros">🛡️ Seguros</option>
+            <option value="Familia">👨‍👩‍👧 Familia</option>
+            <option value="Inversiones">📈 Inversiones</option>
+            <option value="Otros">📦 Otros</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <input type="text" class="form-input" id="gasto-descripcion" placeholder="Ej: Supermercado" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Monto (USD)</label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">$</span>
+            <input type="number" class="form-input input-with-prefix" id="gasto-monto" placeholder="0.00" step="0.01" min="0" />
+          </div>
+        </div>
+        <button class="btn btn-danger" id="btnAddGasto">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Registrar Gasto
+        </button>
+      </div>
+
+      <!-- Category breakdown -->
+      <div class="form-card">
+        <div class="form-card-title">Gastos por Categoría (Este Mes)</div>
+        <div id="gastosCategoriasBreakdown" class="category-breakdown"></div>
+      </div>
+    </div>
+
+    <!-- Recent expenses table -->
+    <div class="section-block" style="margin-top:2rem">
+      <div class="section-title">Gastos Recientes</div>
+      <div class="table-wrap">
+        <table class="data-table" id="tableGastosRecent">
+          <thead>
+            <tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tbodyGastosRecent"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PAGE: GRÁFICOS ═══════ -->
+  <section class="page" id="page-graficos">
+    <div class="page-header">
+      <h1>Gráficos <span class="page-subtitle">Visualización financiera</span></h1>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-card-title">Gastos por Categoría</div>
+        <div class="chart-container">
+          <canvas id="chartGastosCat"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Ingresos por Mes</div>
+        <div class="chart-container">
+          <canvas id="chartIngresosMes"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Ahorro Acumulado</div>
+        <div class="chart-container">
+          <canvas id="chartAhorro"></canvas>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-card-title">Patrimonio Neto</div>
+        <div class="chart-container">
+          <canvas id="chartPatrimonio"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PAGE: REPORTES ═══════ -->
+  <section class="page" id="page-reportes">
+    <div class="page-header">
+      <h1>Reportes <span class="page-subtitle">Análisis detallado</span></h1>
+    </div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="reporte-semanal">Reporte Semanal</button>
+      <button class="tab-btn" data-tab="reporte-mensual">Reporte Mensual</button>
+    </div>
+
+    <!-- Weekly Report -->
+    <div class="tab-content active" id="tab-reporte-semanal">
+      <div class="report-grid" id="reporteSemanalGrid"></div>
+    </div>
+
+    <!-- Monthly Report -->
+    <div class="tab-content" id="tab-reporte-mensual">
+      <div class="report-grid" id="reporteMensualGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════ PAGE: HISTORIAL ═══════ -->
+  <section class="page" id="page-historial">
+    <div class="page-header">
+      <h1>Historial <span class="page-subtitle">Todos los registros</span></h1>
+    </div>
+
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="hist-ingresos">Ingresos</button>
+      <button class="tab-btn" data-tab="hist-gastos">Gastos</button>
+    </div>
+
+    <!-- Search & Filter bar -->
+    <div class="search-filter-bar">
+      <div class="input-icon-wrap">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="form-input input-icon" id="historialSearch" placeholder="Buscar..." />
+      </div>
+      <input type="month" class="form-input" id="historialFiltroMes" />
+      <button class="btn btn-outline" id="historialFiltroBtn">Filtrar</button>
+      <button class="btn btn-ghost" id="historialClearBtn">Limpiar</button>
+    </div>
+
+    <!-- Incomes History -->
+    <div class="tab-content active" id="tab-hist-ingresos">
+      <div class="table-wrap">
+        <table class="data-table" id="tableHistIngresos">
+          <thead>
+            <tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tbodyHistIngresos"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Expenses History -->
+    <div class="tab-content" id="tab-hist-gastos">
+      <div class="table-wrap">
+        <table class="data-table" id="tableHistGastos">
+          <thead>
+            <tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
+          </thead>
+          <tbody id="tbodyHistGastos"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════ PAGE: INTELIGENCIA ═══════ -->
+  <section class="page" id="page-inteligencia">
+    <div class="page-header">
+      <h1>Análisis IA <span class="page-subtitle">Inteligencia financiera</span></h1>
+    </div>
+
+    <div class="ai-header-card">
+      <div class="ai-header-icon">◈</div>
+      <div>
+        <div class="ai-header-title">Asistente Financiero Personal</div>
+        <div class="ai-header-sub">Analizando tus patrones financieros para darte recomendaciones personalizadas</div>
+      </div>
+    </div>
+
+    <div class="insights-grid" id="insightsGrid"></div>
+
+    <div class="section-block" style="margin-top:1.5rem">
+      <div class="section-title">Métricas Clave</div>
+      <div class="metrics-grid" id="metricsGrid"></div>
+    </div>
+  </section>
+
+  <!-- ═══════ PAGE: CONFIGURACIÓN ═══════ -->
+  <section class="page" id="page-configuracion">
+    <div class="page-header">
+      <h1>Configuración <span class="page-subtitle">Personaliza tu sistema</span></h1>
+    </div>
+
+    <div class="config-grid">
+      <!-- Distribution percentages -->
+      <div class="form-card">
+        <div class="form-card-title">Distribución de Ingresos</div>
+        <div class="form-card-sub">Los porcentajes deben sumar 100%</div>
+
+        <div class="form-group">
+          <label class="form-label">Gastos <span class="pct-badge" id="cfg-gastos-pct">60%</span></label>
+          <input type="range" class="range-input" id="cfg-gastos" min="0" max="100" value="60" step="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ahorro USD <span class="pct-badge" id="cfg-ahorro-usd-pct">20%</span></label>
+          <input type="range" class="range-input" id="cfg-ahorro-usd" min="0" max="100" value="20" step="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ahorro COP <span class="pct-badge" id="cfg-ahorro-cop-pct">10%</span></label>
+          <input type="range" class="range-input" id="cfg-ahorro-cop" min="0" max="100" value="10" step="1" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Inversión <span class="pct-badge" id="cfg-inversion-pct">10%</span></label>
+          <input type="range" class="range-input" id="cfg-inversion" min="0" max="100" value="10" step="1" />
+        </div>
+
+        <div class="pct-total-row">
+          Total: <span id="cfg-total-pct" class="pct-total">100%</span>
+        </div>
+        <button class="btn btn-primary" id="btnSaveConfig">Guardar Configuración</button>
+      </div>
+
+      <!-- COP Exchange Rate -->
+      <div class="form-card">
+        <div class="form-card-title">Tasa de Cambio USD/COP</div>
+        <div class="form-card-sub">Actualiza la tasa para conversión de ahorros</div>
+        <div class="form-group">
+          <label class="form-label">1 USD =</label>
+          <div class="input-prefix-wrap">
+            <span class="input-prefix">COP</span>
+            <input type="number" class="form-input input-with-prefix" id="cfg-tasa-cop" placeholder="4000" value="4000" />
+          </div>
+        </div>
+        <button class="btn btn-outline" id="btnSaveTasa">Actualizar Tasa</button>
+      </div>
+
+      <!-- Recurring expenses management -->
+      <div class="form-card config-full">
+        <div class="form-card-title">Gastos Recurrentes</div>
+        <div class="form-card-sub">Gestiona tus gastos fijos automáticos</div>
+
+        <div class="recurring-mgmt-grid" id="recurringMgmtGrid"></div>
+
+        <div class="recurring-add-form">
+          <div class="form-card-title" style="font-size:.85rem;margin-bottom:.75rem">Agregar Gasto Recurrente</div>
+          <div class="recurring-add-row">
+            <input type="text" class="form-input" id="rec-nombre" placeholder="Nombre" />
+            <input type="number" class="form-input" id="rec-monto" placeholder="Monto $" step="0.01" />
+            <select class="form-input" id="rec-frecuencia">
+              <option value="semanal">Semanal</option>
+              <option value="quincenal">Quincenal</option>
+              <option value="mensual" selected>Mensual</option>
+            </select>
+            <select class="form-input" id="rec-categoria">
+              <option value="Vivienda">Vivienda</option>
+              <option value="Alimentación">Alimentación</option>
+              <option value="Transporte">Transporte</option>
+              <option value="Gimnasio">Gimnasio</option>
+              <option value="Seguros">Seguros</option>
+              <option value="Familia">Familia</option>
+              <option value="Inversiones">Inversiones</option>
+              <option value="Otros">Otros</option>
+            </select>
+            <button class="btn btn-primary" id="btnAddRecurring">Agregar</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data management -->
+      <div class="form-card">
+        <div class="form-card-title">Gestión de Datos</div>
+        <div class="form-card-sub">Exporta o reinicia tus datos</div>
+        <div class="btn-group-vertical">
+          <button class="btn btn-outline" id="btnExportData">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Exportar JSON
+          </button>
+          <button class="btn btn-ghost danger" id="btnResetData">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            Borrar Todos los Datos
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- ═══════════════════════════════════════════════════
+     MODAL: EDIT
+════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Editar Registro</div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
+      <button class="btn btn-primary" id="modalSave">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
