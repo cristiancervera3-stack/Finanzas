@@ -103,79 +103,56 @@
     </div>
 
     <!-- Summary Cards -->
-    <div class="cards-grid" id="dashboardCards">
-      <div class="card card--income">
-        <div class="card-label">Ingresos Semanales</div>
-        <div class="card-value" id="card-ingresos-semana">$0.00</div>
-        <div class="card-sub" id="card-ingresos-semana-sub">Esta semana</div>
-      </div>
-      <div class="card card--income">
-        <div class="card-label">Ingresos Mensuales</div>
-        <div class="card-value" id="card-ingresos-mes">$0.00</div>
-        <div class="card-sub" id="card-ingresos-mes-sub">Este mes</div>
-      </div>
-      <div class="card card--expense">
-        <div class="card-label">Gastos Semanales</div>
-        <div class="card-value" id="card-gastos-semana">$0.00</div>
-        <div class="card-sub">Esta semana</div>
-      </div>
-      <div class="card card--expense">
-        <div class="card-label">Gastos Mensuales</div>
-        <div class="card-value" id="card-gastos-mes">$0.00</div>
-        <div class="card-sub">Este mes</div>
-      </div>
-      <div class="card card--savings">
-        <div class="card-label">Ahorro USD</div>
-        <div class="card-value" id="card-ahorro-usd">$0.00</div>
-        <div class="card-sub">Acumulado</div>
-      </div>
-      <div class="card card--savings">
-        <div class="card-label">Ahorro COP</div>
-        <div class="card-value" id="card-ahorro-cop">$0 COP</div>
-        <div class="card-sub">Acumulado</div>
-      </div>
-      <div class="card card--invest">
-        <div class="card-label">Inversión</div>
-        <div class="card-value" id="card-inversion">$0.00</div>
-        <div class="card-sub">Acumulado</div>
-      </div>
-      <div class="card card--available card--featured">
-        <div class="card-label">Dinero Disponible</div>
-        <div class="card-value" id="card-disponible">$0.00</div>
-        <div class="card-sub">Libre este mes</div>
-      </div>
-    </div>
-
-    <!-- Distribution preview -->
-    <div class="section-block">
-      <div class="section-title">Distribución del próximo ingreso</div>
-      <div class="distribution-bar" id="distributionBar">
-        <div class="dist-segment dist-gastos" id="dist-gastos" style="width:60%">
-          <span>Gastos 60%</span>
-        </div>
-        <div class="dist-segment dist-ahorro-usd" id="dist-ahorro-usd" style="width:20%">
-          <span>Ahorro USD 20%</span>
-        </div>
-        <div class="dist-segment dist-ahorro-cop" id="dist-ahorro-cop" style="width:10%">
-          <span>Ahorro COP 10%</span>
-        </div>
-        <div class="dist-segment dist-inversion" id="dist-inversion" style="width:10%">
-          <span>Inversión 10%</span>
+    <div class="dashboard-grid">
+      <div class="dashboard-panel">
+        <div class="panel-title">Ingresos y Gastos</div>
+        <div class="cards-grid cards-grid--split" id="dashboardCards">
+          <div class="card card--income">
+            <div class="card-label">Ingresos Semanales</div>
+            <div class="card-value" id="card-ingresos-semana">$0.00</div>
+            <div class="card-sub" id="card-ingresos-semana-sub">Esta semana</div>
+          </div>
+          <div class="card card--income">
+            <div class="card-label">Ingresos Mensuales</div>
+            <div class="card-value" id="card-ingresos-mes">$0.00</div>
+            <div class="card-sub" id="card-ingresos-mes-sub">Este mes</div>
+          </div>
+          <div class="card card--expense">
+            <div class="card-label">Gastos Semanales</div>
+            <div class="card-value" id="card-gastos-semana">$0.00</div>
+            <div class="card-sub">Esta semana</div>
+          </div>
+          <div class="card card--expense">
+            <div class="card-label">Gastos Mensuales</div>
+            <div class="card-value" id="card-gastos-mes">$0.00</div>
+            <div class="card-sub">Este mes</div>
+          </div>
         </div>
       </div>
-    </div>
-
-    <!-- Recurring expenses preview -->
-    <div class="section-block">
-      <div class="section-title">Gastos Recurrentes del Mes</div>
-      <div class="recurring-grid" id="recurringGrid"></div>
-    </div>
-
-    <!-- Quick chart -->
-    <div class="section-block">
-      <div class="section-title">Balance de los últimos 6 meses</div>
-      <div class="chart-container chart-container--sm">
-        <canvas id="chartBalanceDash"></canvas>
+      <div class="dashboard-panel">
+        <div class="panel-title">Ahorros e Inversión</div>
+        <div class="cards-grid cards-grid--split">
+          <div class="card card--savings">
+            <div class="card-label">Ahorro USD</div>
+            <div class="card-value" id="card-ahorro-usd">$0.00</div>
+            <div class="card-sub">Acumulado</div>
+          </div>
+          <div class="card card--savings">
+            <div class="card-label">Ahorro COP</div>
+            <div class="card-value" id="card-ahorro-cop">$0.00</div>
+            <div class="card-sub">Acumulado</div>
+          </div>
+          <div class="card card--invest">
+            <div class="card-label">Inversión</div>
+            <div class="card-value" id="card-inversion">$0.00</div>
+            <div class="card-sub">Acumulado</div>
+          </div>
+          <div class="card card--available card--featured">
+            <div class="card-label">Dinero Disponible</div>
+            <div class="card-value" id="card-disponible">$0.00</div>
+            <div class="card-sub">Libre este mes</div>
+          </div>
+        </div>
       </div>
     </div>
   </section>

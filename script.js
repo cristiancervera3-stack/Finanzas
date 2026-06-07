@@ -207,7 +207,7 @@ function calcTotals() {
 
   // Accumulated savings come from recorded state
   const ahorroUSD = state.ahorro_usd;
-  const ahorroCOP = state.ahorro_cop * state.config.tasa_cop;
+  const ahorroCOP = state.ahorro_cop;
   const inversion = state.inversion;
 
   // Available money = monthly incomes - monthly expenses - monthly recurring
@@ -296,7 +296,7 @@ function renderDashboard() {
   document.getElementById('card-gastos-semana').textContent   = fmtUSD(t.gasWeek);
   document.getElementById('card-gastos-mes').textContent      = fmtUSD(t.gasMonth);
   document.getElementById('card-ahorro-usd').textContent      = fmtUSD(t.ahorroUSD);
-  document.getElementById('card-ahorro-cop').textContent      = fmtCOP(t.ahorroCOP);
+  document.getElementById('card-ahorro-cop').textContent      = fmtUSD(t.ahorroCOP);
   document.getElementById('card-inversion').textContent       = fmtUSD(t.inversion);
 
   const dispEl = document.getElementById('card-disponible');
@@ -306,25 +306,32 @@ function renderDashboard() {
   // Distribution bar
   const c = state.config;
   const total = c.pct_gastos + c.pct_ahorro_usd + c.pct_ahorro_cop + c.pct_inversion || 100;
-  document.getElementById('dist-gastos').style.width     = (c.pct_gastos / total * 100) + '%';
-  document.getElementById('dist-ahorro-usd').style.width = (c.pct_ahorro_usd / total * 100) + '%';
-  document.getElementById('dist-ahorro-cop').style.width = (c.pct_ahorro_cop / total * 100) + '%';
-  document.getElementById('dist-inversion').style.width  = (c.pct_inversion / total * 100) + '%';
+  const distGastos = document.getElementById('dist-gastos');
+  const distAhorroUsd = document.getElementById('dist-ahorro-usd');
+  const distAhorroCop = document.getElementById('dist-ahorro-cop');
+  const distInversion = document.getElementById('dist-inversion');
 
-  document.getElementById('dist-gastos').querySelector('span').textContent     = `Gastos ${c.pct_gastos}%`;
-  document.getElementById('dist-ahorro-usd').querySelector('span').textContent = `Ahorro USD ${c.pct_ahorro_usd}%`;
-  document.getElementById('dist-ahorro-cop').querySelector('span').textContent = `Ahorro COP ${c.pct_ahorro_cop}%`;
-  document.getElementById('dist-inversion').querySelector('span').textContent  = `Inversión ${c.pct_inversion}%`;
+  if (distGastos)    distGastos.style.width     = (c.pct_gastos / total * 100) + '%';
+  if (distAhorroUsd) distAhorroUsd.style.width = (c.pct_ahorro_usd / total * 100) + '%';
+  if (distAhorroCop) distAhorroCop.style.width = (c.pct_ahorro_cop / total * 100) + '%';
+  if (distInversion) distInversion.style.width  = (c.pct_inversion / total * 100) + '%';
+
+  if (distGastos)    distGastos.querySelector('span').textContent     = `Gastos ${c.pct_gastos}%`;
+  if (distAhorroUsd) distAhorroUsd.querySelector('span').textContent = `Ahorro USD ${c.pct_ahorro_usd}%`;
+  if (distAhorroCop) distAhorroCop.querySelector('span').textContent = `Ahorro COP ${c.pct_ahorro_cop}%`;
+  if (distInversion) distInversion.querySelector('span').textContent  = `Inversión ${c.pct_inversion}%`;
 
   // Recurring expenses
   const grid = document.getElementById('recurringGrid');
-  grid.innerHTML = state.recurring.map(r => `
+  if (grid) {
+    grid.innerHTML = state.recurring.map(r => `
     <div class="recurring-item">
       <div class="recurring-item-name">${CATEGORY_EMOJIS[r.categoria] || '📦'} ${r.nombre}</div>
       <div class="recurring-item-amount">${fmtUSD(r.monto)}</div>
       <div class="recurring-item-freq">${r.frecuencia}</div>
     </div>
   `).join('');
+  }
 
   // Mini chart
   renderChartBalance();
@@ -451,7 +458,7 @@ function updateIngresoPreview() {
   previewBreak.innerHTML = [
     { label: 'Gastos',       val: fmtUSD(dist.gastos),     color: 'var(--accent-red)',    border: 'var(--accent-red)' },
     { label: 'Ahorro USD',   val: fmtUSD(dist.ahorro_usd), color: 'var(--accent-green)',  border: 'var(--accent-green)' },
-    { label: 'Ahorro COP',   val: fmtCOP(dist.ahorro_cop * state.config.tasa_cop), color: 'var(--accent-blue)',   border: 'var(--accent-blue)' },
+    { label: 'Ahorro COP',   val: fmtUSD(dist.ahorro_cop), color: 'var(--accent-blue)',   border: 'var(--accent-blue)' },
     { label: 'Inversión',    val: fmtUSD(dist.inversion),  color: 'var(--accent-amber)',  border: 'var(--accent-amber)' },
   ].map(item => `
     <div class="breakdown-item" style="border-left-color:${item.border}">
@@ -524,6 +531,10 @@ function addGasto() {
   if (!desc)              return toast('Agrega una descripción', 'error');
   if (!monto || monto<=0) return toast('Monto inválido', 'error');
 
+  if (cat === 'Inversiones') {
+    state.inversion = Math.max(0, state.inversion - monto);
+  }
+
   const gasto = { id: uid(), fecha, categoria: cat, descripcion: desc, monto };
   state.gastos.push(gasto);
   saveState();
@@ -560,6 +571,14 @@ function editGasto(id) {
     const desc  = document.getElementById('m-desc').value.trim();
     const monto = parseFloat(document.getElementById('m-monto').value);
     if (!fecha || !cat || !desc || !monto) return toast('Completa todos los campos', 'error');
+
+    if (item.categoria === 'Inversiones') {
+      state.inversion += item.monto;
+    }
+    if (cat === 'Inversiones') {
+      state.inversion = Math.max(0, state.inversion - monto);
+    }
+
     item.fecha = fecha; item.categoria = cat; item.descripcion = desc; item.monto = monto;
     saveState(); closeModal(); toast('Gasto actualizado ✓', 'success'); renderAll();
   });
@@ -569,6 +588,9 @@ function deleteGasto(id) {
   const item = state.gastos.find(x => x.id === id);
   if (!item) return;
   if (!confirm(`¿Eliminar gasto de ${fmtUSD(item.monto)}?`)) return;
+  if (item.categoria === 'Inversiones') {
+    state.inversion += item.monto;
+  }
   state.gastos = state.gastos.filter(x => x.id !== id);
   saveState(); toast('Gasto eliminado', 'info'); renderAll();
 }
