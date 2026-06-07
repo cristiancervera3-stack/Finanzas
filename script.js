@@ -75,15 +75,18 @@ function loadState() {
     if (raw) {
       const saved = JSON.parse(raw);
       const recurring = sanitizeRecurringAmounts(saved.recurring || [...DEFAULT_RECURRING]);
+      const config = { ...DEFAULT_CONFIG, ...(saved.config || {}) };
+      config.pct_ahorro_cop = config.pct_inversion;
       state = {
         ingresos:   saved.ingresos   || [],
         gastos:     saved.gastos     || [],
-        config:     { ...DEFAULT_CONFIG, ...(saved.config || {}) },
+        config,
         recurring,
         ahorro_usd: saved.ahorro_usd || 0,
         ahorro_cop: saved.ahorro_cop || 0,
         inversion:  saved.inversion  || 0,
       };
+      recalcSavingsBuckets();
       if (JSON.stringify(recurring) !== JSON.stringify(saved.recurring || [])) {
         saveState();
       }
@@ -95,6 +98,29 @@ function saveState() {
   try {
     localStorage.setItem('financeOS_v1', JSON.stringify(state));
   } catch(e) { console.warn('Error saving state', e); }
+}
+
+function recalcSavingsBuckets() {
+  const totals = state.ingresos.reduce((acc, ingreso) => {
+    const dist = calcDistribution(ingreso.monto);
+    acc.ahorro_usd += dist.ahorro_usd;
+    acc.ahorro_cop += dist.ahorro_cop;
+    acc.inversion  += dist.inversion;
+    return acc;
+  }, { ahorro_usd: 0, ahorro_cop: 0, inversion: 0 });
+
+  state.ahorro_usd = totals.ahorro_usd;
+  state.ahorro_cop = totals.ahorro_cop;
+  state.inversion  = totals.inversion;
+
+  state.gastos.forEach(gasto => {
+    if (gasto.categoria === 'Inversiones') {
+      state.inversion = Math.max(0, state.inversion - gasto.monto);
+    }
+    if (gasto.categoria === 'Ahorro COP') {
+      state.ahorro_cop = Math.max(0, state.ahorro_cop - gasto.monto);
+    }
+  });
 }
 
 // ═══════════════════════════════════════════════
@@ -535,6 +561,9 @@ function addGasto() {
   if (cat === 'Inversiones') {
     state.inversion = Math.max(0, state.inversion - monto);
   }
+  if (cat === 'Ahorro COP') {
+    state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
+  }
 
   const gasto = { id: uid(), fecha, categoria: cat, descripcion: desc, monto };
   state.gastos.push(gasto);
@@ -576,8 +605,14 @@ function editGasto(id) {
     if (item.categoria === 'Inversiones') {
       state.inversion += item.monto;
     }
+    if (item.categoria === 'Ahorro COP') {
+      state.ahorro_cop += item.monto;
+    }
     if (cat === 'Inversiones') {
       state.inversion = Math.max(0, state.inversion - monto);
+    }
+    if (cat === 'Ahorro COP') {
+      state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
     }
 
     item.fecha = fecha; item.categoria = cat; item.descripcion = desc; item.monto = monto;
@@ -591,6 +626,9 @@ function deleteGasto(id) {
   if (!confirm(`¿Eliminar gasto de ${fmtUSD(item.monto)}?`)) return;
   if (item.categoria === 'Inversiones') {
     state.inversion += item.monto;
+  }
+  if (item.categoria === 'Ahorro COP') {
+    state.ahorro_cop += item.monto;
   }
   state.gastos = state.gastos.filter(x => x.id !== id);
   saveState(); toast('Gasto eliminado', 'info'); renderAll();
@@ -916,7 +954,8 @@ function renderConfigPage() {
   const c = state.config;
   document.getElementById('cfg-gastos').value      = c.pct_gastos;
   document.getElementById('cfg-ahorro-usd').value  = c.pct_ahorro_usd;
-  document.getElementById('cfg-ahorro-cop').value  = c.pct_ahorro_cop;
+  // Ahorro COP funciona igual que Inversiones
+  document.getElementById('cfg-ahorro-cop').value  = c.pct_inversion;
   document.getElementById('cfg-inversion').value   = c.pct_inversion;
   document.getElementById('cfg-tasa-cop').value    = c.tasa_cop;
   updateConfigPctLabels();
@@ -928,12 +967,14 @@ function updateConfigPctLabels() {
   const au = parseInt(document.getElementById('cfg-ahorro-usd').value);
   const ac = parseInt(document.getElementById('cfg-ahorro-cop').value);
   const iv = parseInt(document.getElementById('cfg-inversion').value);
-  const total = g + au + ac + iv;
+  const total = g + au + iv + iv;
 
   document.getElementById('cfg-gastos-pct').textContent     = g  + '%';
   document.getElementById('cfg-ahorro-usd-pct').textContent = au + '%';
-  document.getElementById('cfg-ahorro-cop-pct').textContent = ac + '%';
+  document.getElementById('cfg-ahorro-cop-pct').textContent = iv + '%';
   document.getElementById('cfg-inversion-pct').textContent  = iv + '%';
+
+  document.getElementById('cfg-ahorro-cop').value = iv;
 
   const totalEl = document.getElementById('cfg-total-pct');
   totalEl.textContent = total + '%';
@@ -943,15 +984,14 @@ function updateConfigPctLabels() {
 function saveConfig() {
   const g  = parseInt(document.getElementById('cfg-gastos').value);
   const au = parseInt(document.getElementById('cfg-ahorro-usd').value);
-  const ac = parseInt(document.getElementById('cfg-ahorro-cop').value);
   const iv = parseInt(document.getElementById('cfg-inversion').value);
-  const total = g + au + ac + iv;
+  const total = g + au + iv + iv;
 
   if (total !== 100) return toast(`Los porcentajes suman ${total}%, deben sumar 100%`, 'error');
 
   state.config.pct_gastos     = g;
   state.config.pct_ahorro_usd = au;
-  state.config.pct_ahorro_cop = ac;
+  state.config.pct_ahorro_cop = iv;
   state.config.pct_inversion  = iv;
   saveState();
   toast('Configuración guardada ✓', 'success');
@@ -1218,8 +1258,16 @@ function init() {
   document.getElementById('gasto-monto').addEventListener('keydown', e => { if (e.key === 'Enter') addGasto(); });
 
   // Config ranges
-  ['cfg-gastos','cfg-ahorro-usd','cfg-ahorro-cop','cfg-inversion'].forEach(id => {
+  ['cfg-gastos','cfg-ahorro-usd'].forEach(id => {
     document.getElementById(id).addEventListener('input', updateConfigPctLabels);
+  });
+  document.getElementById('cfg-inversion').addEventListener('input', e => {
+    document.getElementById('cfg-ahorro-cop').value = e.target.value;
+    updateConfigPctLabels();
+  });
+  document.getElementById('cfg-ahorro-cop').addEventListener('input', e => {
+    document.getElementById('cfg-inversion').value = e.target.value;
+    updateConfigPctLabels();
   });
   document.getElementById('btnSaveConfig').addEventListener('click', saveConfig);
   document.getElementById('btnSaveTasa').addEventListener('click', saveTasa);
