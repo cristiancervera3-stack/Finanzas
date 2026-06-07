@@ -35,6 +35,7 @@ const CATEGORY_COLORS = {
   'Transporte':   '#00e5a0',
   'Gimnasio':     '#ff4f6b',
   'Seguros':      '#a78bfa',
+  'Ahorro COP':   '#34d399',
   'Familia':      '#fb923c',
   'Inversiones':  '#34d399',
   'Otros':        '#64748b',
@@ -43,12 +44,12 @@ const CATEGORY_COLORS = {
 const CATEGORY_EMOJIS = {
   'Vivienda':'🏠','Alimentación':'🍔','Transporte':'🚗',
   'Gimnasio':'💪','Seguros':'🛡️','Familia':'👨‍👩‍👧',
-  'Inversiones':'📈','Otros':'📦'
+  'Ahorro COP':'💰','Inversiones':'📈','Otros':'📦'
 };
 
 // ═══════════════════════════════════════════════
 // STATE — load from localStorage
-// ═══════════════════════════════════════════════
+// ══════════════════════════════════════════════
 
 let state = {
   ingresos:   [],
