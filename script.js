@@ -36,6 +36,7 @@ const CATEGORY_COLORS = {
   'Gimnasio':     '#ff4f6b',
   'Seguros':      '#a78bfa',
   'Ahorro COP':   '#34d399',
+  'Ahorro USD':   '#34d3ce',
   'Familia':      '#fb923c',
   'Inversiones':  '#34d399',
   'Otros':        '#64748b',
@@ -44,7 +45,7 @@ const CATEGORY_COLORS = {
 const CATEGORY_EMOJIS = {
   'Vivienda':'🏠','Alimentación':'🍔','Transporte':'🚗',
   'Gimnasio':'💪','Seguros':'🛡️','Familia':'👨‍👩‍👧',
-  'Ahorro COP':'💰','Inversiones':'📈','Otros':'📦'
+  'Ahorro COP':'💰','Ahorro USD':'💵','Inversiones':'📈','Otros':'📦'
 };
 
 // ═══════════════════════════════════════════════
