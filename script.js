@@ -48,6 +48,10 @@ const CATEGORY_EMOJIS = {
   'Ahorro COP':'💰','Ahorro USD':'💵','Inversiones':'📈','Otros':'📦'
 };
 
+function categorySlug(name) {
+  return String(name || '').toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+}
+
 // ═══════════════════════════════════════════════
 // STATE — load from localStorage
 // ══════════════════════════════════════════════
@@ -120,6 +124,9 @@ function recalcSavingsBuckets() {
     }
     if (gasto.categoria === 'Ahorro COP') {
       state.ahorro_cop = Math.max(0, state.ahorro_cop - gasto.monto);
+    }
+    if (gasto.categoria === 'Ahorro USD') {
+      state.ahorro_usd = Math.max(0, state.ahorro_usd - gasto.monto);
     }
   });
 }
@@ -514,7 +521,7 @@ function renderGastosTable(data, tbodyId) {
   tbody.innerHTML = data.map(g => `
     <tr>
       <td class="fw-mono" style="white-space:nowrap">${formatDisplayDate(g.fecha)}</td>
-      <td><span class="tag tag-${g.categoria.toLowerCase()}">${CATEGORY_EMOJIS[g.categoria] || ''} ${escHtml(g.categoria)}</span></td>
+      <td><span class="tag tag-${categorySlug(g.categoria)}">${CATEGORY_EMOJIS[g.categoria] || ''} ${escHtml(g.categoria)}</span></td>
       <td>${escHtml(g.descripcion)}</td>
       <td class="amount-negative">${fmtUSD(g.monto)}</td>
       <td>
@@ -565,6 +572,9 @@ function addGasto() {
   if (cat === 'Ahorro COP') {
     state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
   }
+  if (cat === 'Ahorro USD') {
+    state.ahorro_usd = Math.max(0, state.ahorro_usd - monto);
+  }
 
   const gasto = { id: uid(), fecha, categoria: cat, descripcion: desc, monto };
   state.gastos.push(gasto);
@@ -609,11 +619,17 @@ function editGasto(id) {
     if (item.categoria === 'Ahorro COP') {
       state.ahorro_cop += item.monto;
     }
+    if (item.categoria === 'Ahorro USD') {
+      state.ahorro_usd += item.monto;
+    }
     if (cat === 'Inversiones') {
       state.inversion = Math.max(0, state.inversion - monto);
     }
     if (cat === 'Ahorro COP') {
       state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
+    }
+    if (cat === 'Ahorro USD') {
+      state.ahorro_usd = Math.max(0, state.ahorro_usd - monto);
     }
 
     item.fecha = fecha; item.categoria = cat; item.descripcion = desc; item.monto = monto;
@@ -630,6 +646,9 @@ function deleteGasto(id) {
   }
   if (item.categoria === 'Ahorro COP') {
     state.ahorro_cop += item.monto;
+  }
+  if (item.categoria === 'Ahorro USD') {
+    state.ahorro_usd += item.monto;
   }
   state.gastos = state.gastos.filter(x => x.id !== id);
   saveState(); toast('Gasto eliminado', 'info'); renderAll();
