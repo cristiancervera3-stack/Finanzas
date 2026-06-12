@@ -17,6 +17,22 @@ const DEFAULT_CONFIG = {
   tasa_cop:       4000,
 };
 
+// Daily Bible verses (rotates by day)
+const DAILY_VERSES = [
+  { ref: 'Jeremías 29:11', text: 'Porque yo sé los planes que tengo para vosotros, planes de bienestar y no de calamidad, para daros un futuro y una esperanza.' },
+  { ref: 'Salmos 23:1', text: 'El Señor es mi pastor; nada me faltará.' },
+  { ref: 'Mateo 6:33', text: 'Buscad primeramente el reino de Dios y su justicia, y todas estas cosas os serán añadidas.' },
+  { ref: 'Filipenses 4:13', text: 'Todo lo puedo en Cristo que me fortalece.' },
+  { ref: 'Proverbios 3:5-6', text: 'Confía en el Señor con todo tu corazón, y no te apoyes en tu propia prudencia.' },
+  { ref: 'Romanos 8:28', text: 'Sabemos que todas las cosas cooperan para bien de los que aman a Dios.' },
+  { ref: 'Salmos 46:10', text: 'Estad quietos, y conoced que yo soy Dios.' },
+];
+
+function getDailyVerse() {
+  const days = Math.floor(Date.now() / (1000 * 60 * 60 * 24));
+  return DAILY_VERSES[days % DAILY_VERSES.length];
+}
+
 let DEFAULT_RECURRING = [
   { id: 'r1', nombre: 'Gasolina',     monto: 0, frecuencia: 'semanal',   categoria: 'Transporte' },
   { id: 'r2', nombre: 'Comida',       monto: 0, frecuencia: 'semanal',   categoria: 'Alimentación' },
@@ -71,6 +87,21 @@ function sanitizeRecurringAmounts(recurring) {
     if (!item || typeof item !== 'object') return item;
     return { ...item, monto: 0 };
   });
+}
+
+function getAiAdvice(totals) {
+  const balance = totals.disponible;
+  const gastoRatio = totals.gasMonth > 0 ? totals.gasMonth / (totals.ingMonth || 1) : 0;
+  if (balance < 0) {
+    return 'Atención: estás gastando más de lo que ingresas. Reduce compras no esenciales y prioriza cerrar deudas o gastos fijos primero.';
+  }
+  if (gastoRatio > 0.75) {
+    return 'Buen momento para revisar tus gastos: más del 75% de tus ingresos se está yendo en gastos. Recorta suscripciones o comidas fuera de casa.';
+  }
+  if (balance > 500) {
+    return 'Excelente, tienes buen margen libre. Aprovecha para destinar una parte a ahorro o inversión y fortalecer tu colchón financiero.';
+  }
+  return 'Tu cuenta está equilibrada. Sigue revisando gastos variables y usa este saldo disponible para tomar decisiones financieras más seguras.';
 }
 
 function loadState() {
@@ -316,30 +347,43 @@ function renderDashboard() {
     featuredEl.style.color = t.disponible < 0 ? 'var(--accent-red)' : 'var(--accent-blue)';
   }
 
+  // Update daily verse banner
+  const verseEl = document.getElementById('daily-verse');
+  if (verseEl && typeof getDailyVerse === 'function') {
+    const v = getDailyVerse();
+    verseEl.textContent = `"${v.text}" — ${v.ref}`;
+  }
+
+  // Visual gain/loss bar: compare to previous month disponible
+  const prevRange = getMonthRange(-1);
+  const prevIng = state.ingresos.filter(i => inRange(i.fecha, prevRange)).reduce((a,x) => a+x.monto, 0);
+  const prevGas = state.gastos.filter(g => inRange(g.fecha, prevRange)).reduce((a,x) => a+x.monto, 0) + monthlyRecurringCost();
+  const prevDisp = prevIng - prevGas;
+  const base = Math.max(Math.abs(prevDisp), Math.abs(t.ingMonth) || 1);
+  const pctChange = Math.round(((t.disponible - prevDisp) / base) * 100);
+  const barFill = Math.min(100, Math.abs(pctChange));
+  const barFillEl = document.getElementById('featured-bar-fill');
+  const barLabel = document.getElementById('featured-bar-label');
+  if (barFillEl) {
+    barFillEl.style.width = barFill + '%';
+    barFillEl.style.background = pctChange >= 0 ? 'linear-gradient(90deg,var(--accent-green),var(--accent-cyan))' : 'linear-gradient(90deg,var(--accent-red),var(--accent-amber))';
+  }
+  if (barLabel) {
+    barLabel.textContent = (pctChange >= 0 ? '+' : '') + pctChange + '%';
+    barLabel.style.color = pctChange >= 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+  }
+
+  const adviceEl = document.getElementById('featured-advice');
+  if (adviceEl) {
+    adviceEl.textContent = getAiAdvice(t);
+  }
+
   // Distribution bar
   const c = state.config;
   const total = c.pct_gastos + c.pct_ahorro_usd + c.pct_ahorro_cop + c.pct_inversion || 100;
-  const distGastos    = document.getElementById('dist-gastos');
-  const distAhorroUsd = document.getElementById('dist-ahorro-usd');
-  const distAhorroCop = document.getElementById('dist-ahorro-cop');
-  const distInversion = document.getElementById('dist-inversion');
+  // no distribution panel on dashboard
 
-  if (distGastos)    { distGastos.style.width    = (c.pct_gastos     / total * 100) + '%'; distGastos.querySelector('span').textContent    = `Gastos ${c.pct_gastos}%`; }
-  if (distAhorroUsd) { distAhorroUsd.style.width = (c.pct_ahorro_usd / total * 100) + '%'; distAhorroUsd.querySelector('span').textContent = `USD ${c.pct_ahorro_usd}%`; }
-  if (distAhorroCop) { distAhorroCop.style.width = (c.pct_ahorro_cop / total * 100) + '%'; distAhorroCop.querySelector('span').textContent = `COP ${c.pct_ahorro_cop}%`; }
-  if (distInversion) { distInversion.style.width = (c.pct_inversion  / total * 100) + '%'; distInversion.querySelector('span').textContent = `Inv ${c.pct_inversion}%`; }
-
-  // Recurring expenses
-  const grid = document.getElementById('recurringGrid');
-  if (grid) {
-    grid.innerHTML = state.recurring.map(r => `
-      <div class="recurring-item">
-        <div class="recurring-item-name">${CATEGORY_EMOJIS[r.categoria] || '📦'} ${r.nombre}</div>
-        <div class="recurring-item-amount">${fmtUSD(r.monto)}</div>
-        <div class="recurring-item-freq">${r.frecuencia}</div>
-      </div>
-    `).join('');
-  }
+  // no recurring grid on dashboard
 
   renderChartBalance();
 }

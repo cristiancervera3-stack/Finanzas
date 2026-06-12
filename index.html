@@ -105,7 +105,7 @@
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
     </button>
-    <div class="topbar-title" id="topbarTitle">Dashboard</div>
+    <div class="topbar-title" id="topbarTitle">Created By Cristian Cervera</div>
     <div class="topbar-actions">
       <button class="btn-icon" id="refreshBtn" title="Actualizar datos">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
@@ -119,13 +119,23 @@
       <h1>Dashboard <span class="page-subtitle">Resumen financiero</span></h1>
     </div>
 
+    <!-- Daily verse banner -->
+    <div class="verse-banner" id="daily-verse">"Porque yo sé los planes que tengo para vosotros, planes de bienestar y no de calamidad, para daros un futuro y una esperanza." — Jeremías 29:11</div>
+
     <!-- Featured available: Dinero Disponible + acciones -->
     <div class="featured-available">
       <div class="featured-card">
         <div class="featured-left">
           <div class="featured-label">Dinero Disponible</div>
-          <div class="featured-amount" id="featured-disponible">$0.00</div>
+          <div class="featured-main">
+            <div class="featured-amount" id="featured-disponible">$0.00</div>
+            <div class="featured-bar" id="featured-bar" aria-hidden="true">
+              <div class="featured-bar-fill" id="featured-bar-fill" style="width:0%"></div>
+            </div>
+            <div class="featured-bar-label" id="featured-bar-label">0%</div>
+          </div>
           <div class="featured-sub">Libre este mes</div>
+          <div class="featured-advice" id="featured-advice">Analizando tus ingresos y gastos...</div>
         </div>
         <div class="featured-actions">
           <button class="btn btn-primary" onclick="openIngresoModal()">Ingreso</button>
@@ -200,36 +210,13 @@
             <div class="card-value" id="card-inversion">$0.00</div>
             <div class="card-sub">Acumulado</div>
           </div>
-          <div class="card card--available card--featured">
-            <div class="card-icon card-icon--avail">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-            </div>
-            <div class="card-label">Dinero Disponible</div>
-            <div class="card-value" id="card-disponible">$0.00</div>
-            <div class="card-sub">Libre este mes</div>
-          </div>
+
         </div>
       </div>
     </div>
 
-    <!-- Distribution bar -->
-    <div class="dist-panel">
-      <div class="panel-title">Distribución de Ingresos</div>
-      <div class="distribution-bar" id="distBar">
-        <div class="dist-segment dist-gastos" id="dist-gastos"><span>Gastos 60%</span></div>
-        <div class="dist-segment dist-ahorro-usd" id="dist-ahorro-usd"><span>Ahorro USD 20%</span></div>
-        <div class="dist-segment dist-ahorro-cop" id="dist-ahorro-cop"><span>Ahorro COP 10%</span></div>
-        <div class="dist-segment dist-inversion" id="dist-inversion"><span>Inversión 10%</span></div>
-      </div>
-    </div>
-
-    <!-- Bottom row: recurring + chart -->
     <div class="dashboard-bottom">
-      <div class="dashboard-panel">
-        <div class="panel-title">Gastos Recurrentes</div>
-        <div class="recurring-grid" id="recurringGrid"></div>
-      </div>
-      <div class="dashboard-panel">
+      <div class="dashboard-panel" style="width:100%;">
         <div class="panel-title">Balance 6 Meses</div>
         <div class="chart-container">
           <canvas id="chartBalanceDash"></canvas>
