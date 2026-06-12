@@ -119,6 +119,21 @@
       <h1>Dashboard <span class="page-subtitle">Resumen financiero</span></h1>
     </div>
 
+    <!-- Featured available: Dinero Disponible + acciones -->
+    <div class="featured-available">
+      <div class="featured-card">
+        <div class="featured-left">
+          <div class="featured-label">Dinero Disponible</div>
+          <div class="featured-amount" id="featured-disponible">$0.00</div>
+          <div class="featured-sub">Libre este mes</div>
+        </div>
+        <div class="featured-actions">
+          <button class="btn btn-primary" onclick="openIngresoModal()">Ingreso</button>
+          <button class="btn btn-danger" onclick="openGastoModal()">Gasto</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Summary cards -->
     <div class="dashboard-grid">
       <div class="dashboard-panel">

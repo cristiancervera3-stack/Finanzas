@@ -186,6 +186,9 @@ input, select, textarea { font-family: inherit; }
   transform: translate(-50%, -50%) scale(0);
 }
 
+/* User requested: hide the animated custom cursor elements */
+.cursor-dot, .cursor-ring { display: none !important; }
+
 /* ── Layout ────────────────────────────────────── */
 .sidebar {
   position: fixed;
@@ -447,6 +450,36 @@ input, select, textarea { font-family: inherit; }
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+/* Featured available block on dashboard */
+.featured-available {
+  margin-bottom: 20px;
+}
+.featured-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(90deg, rgba(79,70,229,0.03), rgba(139,92,246,0.02));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 18px 22px;
+  box-shadow: var(--shadow-lg);
+}
+.featured-left {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.featured-label { font-family: var(--font-mono); text-transform: uppercase; color: var(--text-muted); font-size: 12px; }
+.featured-amount { font-family: var(--font-display); font-size: 40px; font-weight: 800; color: var(--accent-blue); }
+.featured-sub { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); }
+.featured-actions { display: flex; gap: 12px; }
+.featured-actions .btn { padding: 12px 18px; border-radius: 12px; font-weight:700 }
+
+@media (max-width: 880px) {
+  .featured-card { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .featured-actions { width: 100%; justify-content: flex-start; }
 }
 
 .page-header h1 {

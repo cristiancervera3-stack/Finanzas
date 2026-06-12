@@ -309,6 +309,13 @@ function renderDashboard() {
     dispEl.style.color = t.disponible < 0 ? 'var(--accent-red)' : 'var(--accent-blue)';
   }
 
+  // Also update a larger featured disponible element if present
+  const featuredEl = document.getElementById('featured-disponible');
+  if (featuredEl) {
+    featuredEl.textContent = fmtUSD(t.disponible);
+    featuredEl.style.color = t.disponible < 0 ? 'var(--accent-red)' : 'var(--accent-blue)';
+  }
+
   // Distribution bar
   const c = state.config;
   const total = c.pct_gastos + c.pct_ahorro_usd + c.pct_ahorro_cop + c.pct_inversion || 100;
@@ -403,6 +410,47 @@ function addIngreso() {
 
   renderIngresosPage();
   renderDashboard();
+}
+
+// Open modal to add ingreso (from featured card)
+function openIngresoModal() {
+  const body = `
+    <div class="form-group">
+      <label class="form-label">Fecha</label>
+      <input type="date" class="form-input" id="modal-ingreso-fecha" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <input type="text" class="form-input" id="modal-ingreso-descripcion" placeholder="Ej: Salario" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monto (USD)</label>
+      <div class="input-prefix-wrap">
+        <span class="input-prefix">$</span>
+        <input type="number" class="form-input input-with-prefix" id="modal-ingreso-monto" placeholder="0.00" step="0.01" min="0" />
+      </div>
+    </div>
+  `;
+  openModal('Nuevo Ingreso', body, () => addIngresoFromModal());
+  const el = document.getElementById('modal-ingreso-fecha'); if (el) el.value = todayStr();
+}
+
+function addIngresoFromModal() {
+  const fecha = document.getElementById('modal-ingreso-fecha').value;
+  const desc  = document.getElementById('modal-ingreso-descripcion').value.trim();
+  const monto = parseFloat(document.getElementById('modal-ingreso-monto').value);
+  if (!fecha)               return toast('Selecciona una fecha', 'error');
+  if (!desc)                return toast('Agrega una descripción', 'error');
+  if (!monto || monto <= 0) return toast('Monto inválido', 'error');
+
+  const dist = calcDistribution(monto);
+  const ingreso = { id: uid(), fecha, descripcion: desc, monto };
+  state.ingresos.push(ingreso);
+  state.ahorro_usd += dist.ahorro_usd;
+  state.ahorro_cop += dist.ahorro_cop;
+  state.inversion  += dist.inversion;
+  saveState(); toast(`Ingreso ${fmtUSD(monto)} registrado ✓`, 'success');
+  closeModal(); renderAll();
 }
 
 function editIngreso(id) {
@@ -552,6 +600,66 @@ function addGasto() {
 
   renderGastosPage();
   renderDashboard();
+}
+
+// Open modal to add gasto (from featured card)
+function openGastoModal() {
+  const body = `
+    <div class="form-group">
+      <label class="form-label">Fecha</label>
+      <input type="date" class="form-input" id="modal-gasto-fecha" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Categoría</label>
+      <select class="form-input" id="modal-gasto-categoria">
+        <option value="">Seleccionar categoría</option>
+        <option value="Vivienda">🏠 Vivienda</option>
+        <option value="Alimentación">🍔 Alimentación</option>
+        <option value="Transporte">🚗 Transporte</option>
+        <option value="Gimnasio">💪 Gimnasio</option>
+        <option value="Seguros">🛡️ Seguros</option>
+        <option value="Familia">👨‍👩‍👧 Familia</option>
+        <option value="Ahorro COP">💰 Ahorro COP</option>
+        <option value="Ahorro USD">💵 Ahorro USD</option>
+        <option value="Inversiones">📈 Inversiones</option>
+        <option value="Otros">📦 Otros</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Descripción</label>
+      <input type="text" class="form-input" id="modal-gasto-descripcion" placeholder="Ej: Supermercado" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Monto (USD)</label>
+      <div class="input-prefix-wrap">
+        <span class="input-prefix">$</span>
+        <input type="number" class="form-input input-with-prefix" id="modal-gasto-monto" placeholder="0.00" step="0.01" min="0" />
+      </div>
+    </div>
+  `;
+  openModal('Nuevo Gasto', body, () => addGastoFromModal());
+  const el = document.getElementById('modal-gasto-fecha'); if (el) el.value = todayStr();
+}
+
+function addGastoFromModal() {
+  const fecha = document.getElementById('modal-gasto-fecha').value;
+  const cat   = document.getElementById('modal-gasto-categoria').value;
+  const desc  = document.getElementById('modal-gasto-descripcion').value.trim();
+  const monto = parseFloat(document.getElementById('modal-gasto-monto').value);
+  if (!fecha)             return toast('Selecciona una fecha', 'error');
+  if (!cat)               return toast('Selecciona una categoría', 'error');
+  if (!desc)              return toast('Agrega una descripción', 'error');
+  if (!monto || monto<=0) return toast('Monto inválido', 'error');
+
+  if (cat === 'Inversiones') state.inversion = Math.max(0, state.inversion - monto);
+  if (cat === 'Ahorro COP')  state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
+  if (cat === 'Ahorro USD')  state.ahorro_usd = Math.max(0, state.ahorro_usd - monto);
+
+  const gasto = { id: uid(), fecha, categoria: cat, descripcion: desc, monto };
+  state.gastos.push(gasto);
+  saveState();
+  toast(`Gasto ${fmtUSD(monto)} registrado`, 'success');
+  closeModal(); renderAll();
 }
 
 function editGasto(id) {
@@ -1504,7 +1612,7 @@ function init() {
   initTabs();
 
   // Premium animations
-  initCustomCursor();
+  // custom cursor disabled per user preference
 
   // Initial render
   navigateTo('dashboard');
