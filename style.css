@@ -407,6 +407,25 @@ input, select, textarea { font-family: inherit; }
   color: var(--text-primary);
 }
 
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+}
+
+.topbar-author {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12px;
+  letter-spacing: -0.01em;
+  background: linear-gradient(135deg, #4F46E5 0%, #8B5CF6 50%, #06B6D4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+}
+
 .btn-icon {
   background: var(--bg-surface);
   border: 1px solid var(--border);
@@ -415,9 +434,9 @@ input, select, textarea { font-family: inherit; }
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
-  justify-content: center;
   transition: var(--transition);
   box-shadow: var(--shadow-xs);
+  margin-left: auto;
 }
 
 .btn-icon:hover {
