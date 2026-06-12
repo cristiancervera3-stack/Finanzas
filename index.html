@@ -3,14 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title> Finanzas — Control Financiero Personal</title>
+  <title>FinanceOS — Control Financiero Personal</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&family=Instrument+Sans:ital,wdth,wght@0,75..100,400..700;1,75..100,400..700&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+
+<!-- Ambient background -->
+<div class="ambient-bg">
+  <div class="ambient-orb ambient-orb--1"></div>
+  <div class="ambient-orb ambient-orb--2"></div>
+  <div class="ambient-orb ambient-orb--3"></div>
+</div>
+
+<!-- Custom cursor -->
+<div class="cursor-dot" id="cursorDot"></div>
+<div class="cursor-ring" id="cursorRing"></div>
 
 <!-- ═══════════════════════════════════════════════════
      SIDEBAR NAVIGATION
@@ -18,11 +29,17 @@
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-header">
     <div class="logo">
-      <span class="logo-icon">◈</span>
+      <div class="logo-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+      </div>
       <span class="logo-text">FinanceOS</span>
     </div>
     <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
       </svg>
     </button>
@@ -31,7 +48,7 @@
   <nav class="sidebar-nav">
     <div class="nav-section-label">Principal</div>
     <a href="#" class="nav-item active" data-page="dashboard">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/></svg>
       <span>Dashboard</span>
     </a>
     <a href="#" class="nav-item" data-page="ingresos">
@@ -49,7 +66,7 @@
       <span>Gráficos</span>
     </a>
     <a href="#" class="nav-item" data-page="reportes">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       <span>Reportes</span>
     </a>
     <a href="#" class="nav-item" data-page="historial">
@@ -57,13 +74,13 @@
       <span>Historial</span>
     </a>
     <a href="#" class="nav-item" data-page="inteligencia">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
       <span>Análisis IA</span>
     </a>
 
     <div class="nav-section-label">Sistema</div>
     <a href="#" class="nav-item" data-page="configuracion">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       <span>Configuración</span>
     </a>
   </nav>
@@ -91,7 +108,7 @@
     <div class="topbar-title" id="topbarTitle">Dashboard</div>
     <div class="topbar-actions">
       <button class="btn-icon" id="refreshBtn" title="Actualizar datos">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
       </button>
     </div>
   </header>
@@ -102,27 +119,39 @@
       <h1>Dashboard <span class="page-subtitle">Resumen financiero</span></h1>
     </div>
 
-    <!-- Summary Cards -->
+    <!-- Summary cards -->
     <div class="dashboard-grid">
       <div class="dashboard-panel">
         <div class="panel-title">Ingresos y Gastos</div>
         <div class="cards-grid cards-grid--split" id="dashboardCards">
           <div class="card card--income">
+            <div class="card-icon card-icon--income">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+            </div>
             <div class="card-label">Ingresos Semanales</div>
             <div class="card-value" id="card-ingresos-semana">$0.00</div>
             <div class="card-sub" id="card-ingresos-semana-sub">Esta semana</div>
           </div>
           <div class="card card--income">
+            <div class="card-icon card-icon--income">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
             <div class="card-label">Ingresos Mensuales</div>
             <div class="card-value" id="card-ingresos-mes">$0.00</div>
             <div class="card-sub" id="card-ingresos-mes-sub">Este mes</div>
           </div>
           <div class="card card--expense">
+            <div class="card-icon card-icon--expense">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+            </div>
             <div class="card-label">Gastos Semanales</div>
             <div class="card-value" id="card-gastos-semana">$0.00</div>
             <div class="card-sub">Esta semana</div>
           </div>
           <div class="card card--expense">
+            <div class="card-icon card-icon--expense">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/><path d="M12 8v4l3 3"/></svg>
+            </div>
             <div class="card-label">Gastos Mensuales</div>
             <div class="card-value" id="card-gastos-mes">$0.00</div>
             <div class="card-sub">Este mes</div>
@@ -133,25 +162,62 @@
         <div class="panel-title">Ahorros e Inversión</div>
         <div class="cards-grid cards-grid--split">
           <div class="card card--savings">
+            <div class="card-icon card-icon--savings">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+            </div>
             <div class="card-label">Ahorro USD</div>
             <div class="card-value" id="card-ahorro-usd">$0.00</div>
             <div class="card-sub">Acumulado</div>
           </div>
           <div class="card card--savings">
+            <div class="card-icon card-icon--savings">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            </div>
             <div class="card-label">Ahorro COP</div>
             <div class="card-value" id="card-ahorro-cop">$0.00</div>
             <div class="card-sub">Acumulado</div>
           </div>
           <div class="card card--invest">
+            <div class="card-icon card-icon--invest">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+            </div>
             <div class="card-label">Inversión</div>
             <div class="card-value" id="card-inversion">$0.00</div>
             <div class="card-sub">Acumulado</div>
           </div>
           <div class="card card--available card--featured">
+            <div class="card-icon card-icon--avail">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+            </div>
             <div class="card-label">Dinero Disponible</div>
             <div class="card-value" id="card-disponible">$0.00</div>
             <div class="card-sub">Libre este mes</div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Distribution bar -->
+    <div class="dist-panel">
+      <div class="panel-title">Distribución de Ingresos</div>
+      <div class="distribution-bar" id="distBar">
+        <div class="dist-segment dist-gastos" id="dist-gastos"><span>Gastos 60%</span></div>
+        <div class="dist-segment dist-ahorro-usd" id="dist-ahorro-usd"><span>Ahorro USD 20%</span></div>
+        <div class="dist-segment dist-ahorro-cop" id="dist-ahorro-cop"><span>Ahorro COP 10%</span></div>
+        <div class="dist-segment dist-inversion" id="dist-inversion"><span>Inversión 10%</span></div>
+      </div>
+    </div>
+
+    <!-- Bottom row: recurring + chart -->
+    <div class="dashboard-bottom">
+      <div class="dashboard-panel">
+        <div class="panel-title">Gastos Recurrentes</div>
+        <div class="recurring-grid" id="recurringGrid"></div>
+      </div>
+      <div class="dashboard-panel">
+        <div class="panel-title">Balance 6 Meses</div>
+        <div class="chart-container">
+          <canvas id="chartBalanceDash"></canvas>
         </div>
       </div>
     </div>
@@ -164,7 +230,6 @@
     </div>
 
     <div class="two-col">
-      <!-- Form -->
       <div class="form-card">
         <div class="form-card-title">Nuevo Ingreso</div>
         <div class="form-group">
@@ -188,7 +253,6 @@
         </button>
       </div>
 
-      <!-- Distribution preview after income -->
       <div class="form-card">
         <div class="form-card-title">Distribución Automática</div>
         <div id="ingreso-preview-text" class="preview-empty">Ingresa un monto para ver la distribución</div>
@@ -196,8 +260,7 @@
       </div>
     </div>
 
-    <!-- Recent incomes table -->
-    <div class="section-block" style="margin-top:2rem">
+    <div class="section-block" style="margin-top:24px">
       <div class="section-title">Ingresos Recientes</div>
       <div class="table-wrap">
         <table class="data-table" id="tableIngresosRecent">
@@ -217,7 +280,6 @@
     </div>
 
     <div class="two-col">
-      <!-- Form -->
       <div class="form-card">
         <div class="form-card-title">Nuevo Gasto</div>
         <div class="form-group">
@@ -257,15 +319,13 @@
         </button>
       </div>
 
-      <!-- Category breakdown -->
       <div class="form-card">
         <div class="form-card-title">Gastos por Categoría (Este Mes)</div>
         <div id="gastosCategoriasBreakdown" class="category-breakdown"></div>
       </div>
     </div>
 
-    <!-- Recent expenses table -->
-    <div class="section-block" style="margin-top:2rem">
+    <div class="section-block" style="margin-top:24px">
       <div class="section-title">Gastos Recientes</div>
       <div class="table-wrap">
         <table class="data-table" id="tableGastosRecent">
@@ -323,12 +383,10 @@
       <button class="tab-btn" data-tab="reporte-mensual">Reporte Mensual</button>
     </div>
 
-    <!-- Weekly Report -->
     <div class="tab-content active" id="tab-reporte-semanal">
       <div class="report-grid" id="reporteSemanalGrid"></div>
     </div>
 
-    <!-- Monthly Report -->
     <div class="tab-content" id="tab-reporte-mensual">
       <div class="report-grid" id="reporteMensualGrid"></div>
     </div>
@@ -345,38 +403,39 @@
       <button class="tab-btn" data-tab="hist-gastos">Gastos</button>
     </div>
 
-    <!-- Search & Filter bar -->
     <div class="search-filter-bar">
       <div class="input-icon-wrap">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <input type="text" class="form-input input-icon" id="historialSearch" placeholder="Buscar..." />
       </div>
-      <input type="month" class="form-input" id="historialFiltroMes" />
+      <input type="month" class="form-input" id="historialFiltroMes" style="width:auto" />
       <button class="btn btn-outline" id="historialFiltroBtn">Filtrar</button>
       <button class="btn btn-ghost" id="historialClearBtn">Limpiar</button>
     </div>
 
-    <!-- Incomes History -->
     <div class="tab-content active" id="tab-hist-ingresos">
-      <div class="table-wrap">
-        <table class="data-table" id="tableHistIngresos">
-          <thead>
-            <tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
-          </thead>
-          <tbody id="tbodyHistIngresos"></tbody>
-        </table>
+      <div class="section-block">
+        <div class="table-wrap">
+          <table class="data-table" id="tableHistIngresos">
+            <thead>
+              <tr><th>Fecha</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="tbodyHistIngresos"></tbody>
+          </table>
+        </div>
       </div>
     </div>
 
-    <!-- Expenses History -->
     <div class="tab-content" id="tab-hist-gastos">
-      <div class="table-wrap">
-        <table class="data-table" id="tableHistGastos">
-          <thead>
-            <tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
-          </thead>
-          <tbody id="tbodyHistGastos"></tbody>
-        </table>
+      <div class="section-block">
+        <div class="table-wrap">
+          <table class="data-table" id="tableHistGastos">
+            <thead>
+              <tr><th>Fecha</th><th>Categoría</th><th>Descripción</th><th>Monto</th><th>Acciones</th></tr>
+            </thead>
+            <tbody id="tbodyHistGastos"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </section>
@@ -388,7 +447,9 @@
     </div>
 
     <div class="ai-header-card">
-      <div class="ai-header-icon">◈</div>
+      <div class="ai-header-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+      </div>
       <div>
         <div class="ai-header-title">Asistente Financiero Personal</div>
         <div class="ai-header-sub">Analizando tus patrones financieros para darte recomendaciones personalizadas</div>
@@ -397,7 +458,7 @@
 
     <div class="insights-grid" id="insightsGrid"></div>
 
-    <div class="section-block" style="margin-top:1.5rem">
+    <div class="section-block" style="margin-top:24px">
       <div class="section-title">Métricas Clave</div>
       <div class="metrics-grid" id="metricsGrid"></div>
     </div>
@@ -410,7 +471,6 @@
     </div>
 
     <div class="config-grid">
-      <!-- Distribution percentages -->
       <div class="form-card">
         <div class="form-card-title">Distribución de Ingresos</div>
         <div class="form-card-sub">Los porcentajes deben sumar 100%</div>
@@ -438,7 +498,6 @@
         <button class="btn btn-primary" id="btnSaveConfig">Guardar Configuración</button>
       </div>
 
-      <!-- COP Exchange Rate -->
       <div class="form-card">
         <div class="form-card-title">Tasa de Cambio USD/COP</div>
         <div class="form-card-sub">Actualiza la tasa para conversión de ahorros</div>
@@ -446,13 +505,12 @@
           <label class="form-label">1 USD =</label>
           <div class="input-prefix-wrap">
             <span class="input-prefix">COP</span>
-            <input type="number" class="form-input input-with-prefix" id="cfg-tasa-cop" placeholder="4000" value="4000" />
+            <input type="number" class="form-input input-with-prefix" id="cfg-tasa-cop" placeholder="4000" value="4000" style="padding-left:52px" />
           </div>
         </div>
         <button class="btn btn-outline" id="btnSaveTasa">Actualizar Tasa</button>
       </div>
 
-      <!-- Recurring expenses management -->
       <div class="form-card config-full">
         <div class="form-card-title">Gastos Recurrentes</div>
         <div class="form-card-sub">Gestiona tus gastos fijos automáticos</div>
@@ -479,12 +537,11 @@
               <option value="Inversiones">Inversiones</option>
               <option value="Otros">Otros</option>
             </select>
-            <button class="btn btn-primary" id="btnAddRecurring">Agregar</button>
+            <button class="btn btn-primary" id="btnAddRecurring" style="width:auto;margin:0">Agregar</button>
           </div>
         </div>
       </div>
 
-      <!-- Data management -->
       <div class="form-card">
         <div class="form-card-title">Gestión de Datos</div>
         <div class="form-card-sub">Exporta o reinicia tus datos</div>
@@ -505,7 +562,7 @@
 </main>
 
 <!-- ═══════════════════════════════════════════════════
-     MODAL: EDIT
+     MODAL
 ════════════════════════════════════════════════════ -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modal">
@@ -516,7 +573,7 @@
     <div class="modal-body" id="modalBody"></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" id="modalCancel">Cancelar</button>
-      <button class="btn btn-primary" id="modalSave">Guardar</button>
+      <button class="btn btn-primary" id="modalSave" style="width:auto;margin:0">Guardar</button>
     </div>
   </div>
 </div>

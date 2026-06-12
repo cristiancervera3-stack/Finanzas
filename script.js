@@ -1,7 +1,6 @@
 /**
- * FinanceOS — Personal Finance Manager
- * Vanilla JS · localStorage · Chart.js
- * ═══════════════════════════════════════════════
+ * FinanceOS 2026 — Personal Finance Manager
+ * Vanilla JS · localStorage · Chart.js · Premium Animations
  */
 
 'use strict';
@@ -19,27 +18,27 @@ const DEFAULT_CONFIG = {
 };
 
 let DEFAULT_RECURRING = [
-  { id: 'r1', nombre: 'Gasolina',     monto: 0,  frecuencia: 'semanal',   categoria: 'Transporte' },
+  { id: 'r1', nombre: 'Gasolina',     monto: 0, frecuencia: 'semanal',   categoria: 'Transporte' },
   { id: 'r2', nombre: 'Comida',       monto: 0, frecuencia: 'semanal',   categoria: 'Alimentación' },
   { id: 'r3', nombre: 'Arriendo',     monto: 0, frecuencia: 'mensual',   categoria: 'Vivienda' },
-  { id: 'r4', nombre: 'Gimnasio',     monto: 0,  frecuencia: 'mensual',   categoria: 'Gimnasio' },
-  { id: 'r5', nombre: 'Luz',          monto: 0,  frecuencia: 'mensual',   categoria: 'Vivienda' },
-  { id: 'r6', nombre: 'Plan celular', monto: 0,  frecuencia: 'mensual',   categoria: 'Otros' },
+  { id: 'r4', nombre: 'Gimnasio',     monto: 0, frecuencia: 'mensual',   categoria: 'Gimnasio' },
+  { id: 'r5', nombre: 'Luz',          monto: 0, frecuencia: 'mensual',   categoria: 'Vivienda' },
+  { id: 'r6', nombre: 'Plan celular', monto: 0, frecuencia: 'mensual',   categoria: 'Otros' },
   { id: 'r7', nombre: 'Seguro carro', monto: 0, frecuencia: 'mensual',   categoria: 'Seguros' },
   { id: 'r8', nombre: 'Ayuda padre',  monto: 0, frecuencia: 'quincenal', categoria: 'Familia' },
 ];
 
 const CATEGORY_COLORS = {
-  'Vivienda':     '#4f8cff',
-  'Alimentación': '#ffb547',
-  'Transporte':   '#00e5a0',
-  'Gimnasio':     '#ff4f6b',
-  'Seguros':      '#a78bfa',
-  'Ahorro COP':   '#34d399',
-  'Ahorro USD':   '#34d3ce',
-  'Familia':      '#fb923c',
-  'Inversiones':  '#34d399',
-  'Otros':        '#64748b',
+  'Vivienda':     '#4F46E5',
+  'Alimentación': '#F59E0B',
+  'Transporte':   '#10B981',
+  'Gimnasio':     '#EF4444',
+  'Seguros':      '#8B5CF6',
+  'Ahorro COP':   '#06B6D4',
+  'Ahorro USD':   '#34D399',
+  'Familia':      '#F97316',
+  'Inversiones':  '#06B6D4',
+  'Otros':        '#94A3B8',
 };
 
 const CATEGORY_EMOJIS = {
@@ -53,8 +52,8 @@ function categorySlug(name) {
 }
 
 // ═══════════════════════════════════════════════
-// STATE — load from localStorage
-// ══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
 
 let state = {
   ingresos:   [],
@@ -119,15 +118,9 @@ function recalcSavingsBuckets() {
   state.inversion  = totals.inversion;
 
   state.gastos.forEach(gasto => {
-    if (gasto.categoria === 'Inversiones') {
-      state.inversion = Math.max(0, state.inversion - gasto.monto);
-    }
-    if (gasto.categoria === 'Ahorro COP') {
-      state.ahorro_cop = Math.max(0, state.ahorro_cop - gasto.monto);
-    }
-    if (gasto.categoria === 'Ahorro USD') {
-      state.ahorro_usd = Math.max(0, state.ahorro_usd - gasto.monto);
-    }
+    if (gasto.categoria === 'Inversiones') state.inversion = Math.max(0, state.inversion - gasto.monto);
+    if (gasto.categoria === 'Ahorro COP')  state.ahorro_cop = Math.max(0, state.ahorro_cop - gasto.monto);
+    if (gasto.categoria === 'Ahorro USD')  state.ahorro_usd = Math.max(0, state.ahorro_usd - gasto.monto);
   });
 }
 
@@ -145,18 +138,14 @@ const fmtCOP = (v) => {
   return '$' + Math.round(n).toLocaleString('es-CO') + ' COP';
 };
 
-function todayStr() {
-  return new Date().toISOString().slice(0,10);
-}
+function todayStr() { return new Date().toISOString().slice(0,10); }
 
-function uid() {
-  return Date.now().toString(36) + Math.random().toString(36).slice(2);
-}
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
 
 function getWeekRange() {
   const now = new Date();
   const day = now.getDay();
-  const diff = now.getDate() - day + (day === 0 ? -6 : 1); // Mon
+  const diff = now.getDate() - day + (day === 0 ? -6 : 1);
   const mon = new Date(now.setDate(diff));
   mon.setHours(0,0,0,0);
   const sun = new Date(mon);
@@ -177,15 +166,10 @@ function inRange(dateStr, range) {
   return d >= range.start && d <= range.end;
 }
 
-function monthKey(dateStr) {
-  return dateStr.slice(0, 7); // YYYY-MM
-}
+function monthKey(dateStr) { return dateStr.slice(0, 7); }
 
-function parseDate(dateStr) {
-  return new Date(dateStr + 'T12:00:00');
-}
+function parseDate(dateStr) { return new Date(dateStr + 'T12:00:00'); }
 
-// Monthly recurring cost equivalent
 function monthlyRecurringCost() {
   return state.recurring.reduce((acc, r) => {
     const m = r.monto || 0;
@@ -196,7 +180,6 @@ function monthlyRecurringCost() {
   }, 0);
 }
 
-// Weekly recurring cost
 function weeklyRecurringCost() {
   return state.recurring.reduce((acc, r) => {
     const m = r.monto || 0;
@@ -229,45 +212,34 @@ function calcTotals() {
 
   const ingWeek  = state.ingresos.filter(i => inRange(i.fecha, week)).reduce((a,i) => a + i.monto, 0);
   const ingMonth = state.ingresos.filter(i => inRange(i.fecha, month)).reduce((a,i) => a + i.monto, 0);
-
   const gasWeek  = state.gastos.filter(g => inRange(g.fecha, week)).reduce((a,g) => a + g.monto, 0);
   const gasMonth = state.gastos.filter(g => inRange(g.fecha, month)).reduce((a,g) => a + g.monto, 0);
 
   const monthlyRec = monthlyRecurringCost();
   const weeklyRec  = weeklyRecurringCost();
-
-  // Total incomes ever — for accumulated savings
-  const ingTotal = state.ingresos.reduce((a,i) => a + i.monto, 0);
-  const gasTotal = state.gastos.reduce((a,g) => a + g.monto, 0);
-
-  // Accumulated savings come from recorded state
-  const ahorroUSD = state.ahorro_usd;
-  const ahorroCOP = state.ahorro_cop;
-  const inversion = state.inversion;
-
-  // Available money = monthly incomes - monthly expenses - monthly recurring
+  const ingTotal   = state.ingresos.reduce((a,i) => a + i.monto, 0);
+  const gasTotal   = state.gastos.reduce((a,g) => a + g.monto, 0);
+  const ahorroUSD  = state.ahorro_usd;
+  const ahorroCOP  = state.ahorro_cop;
+  const inversion  = state.inversion;
   const disponible = ingMonth - gasMonth - monthlyRec;
 
   return {
     ingWeek, ingMonth,
     gasWeek: gasWeek + weeklyRec,
     gasMonth: gasMonth + monthlyRec,
-    ahorroUSD, ahorroCOP,
-    inversion,
-    disponible,
-    ingTotal, gasTotal,
+    ahorroUSD, ahorroCOP, inversion,
+    disponible, ingTotal, gasTotal,
     monthlyRec, weeklyRec,
   };
 }
 
-// Gastos grouped by category this month
 function gastosPorCategoria(monthOffset = 0) {
   const range = getMonthRange(monthOffset);
   const map = {};
   state.gastos.filter(g => inRange(g.fecha, range)).forEach(g => {
     map[g.categoria] = (map[g.categoria] || 0) + g.monto;
   });
-  // Add recurring
   state.recurring.forEach(r => {
     const amount = r.frecuencia === 'semanal'   ? r.monto * 4.33
                  : r.frecuencia === 'quincenal' ? r.monto * 2
@@ -277,7 +249,6 @@ function gastosPorCategoria(monthOffset = 0) {
   return map;
 }
 
-// Ingresos by month (last 6)
 function ingresosPorMes(n = 6) {
   const months = [];
   for (let i = n - 1; i >= 0; i--) {
@@ -289,7 +260,6 @@ function ingresosPorMes(n = 6) {
   return months;
 }
 
-// Ahorro acumulado by month
 function ahorroPorMes(n = 6) {
   const months = [];
   let acc = 0;
@@ -304,7 +274,6 @@ function ahorroPorMes(n = 6) {
   return months;
 }
 
-// Net worth by month
 function patrimonioNeto(n = 6) {
   const months = [];
   let patrimonio = 0;
@@ -326,50 +295,55 @@ function patrimonioNeto(n = 6) {
 function renderDashboard() {
   const t = calcTotals();
 
-  document.getElementById('card-ingresos-semana').textContent = fmtUSD(t.ingWeek);
-  document.getElementById('card-ingresos-mes').textContent    = fmtUSD(t.ingMonth);
-  document.getElementById('card-gastos-semana').textContent   = fmtUSD(t.gasWeek);
-  document.getElementById('card-gastos-mes').textContent      = fmtUSD(t.gasMonth);
-  document.getElementById('card-ahorro-usd').textContent      = fmtUSD(t.ahorroUSD);
-  document.getElementById('card-ahorro-cop').textContent      = fmtUSD(t.ahorroCOP);
-  document.getElementById('card-inversion').textContent       = fmtUSD(t.inversion);
+  animateValue('card-ingresos-semana', t.ingWeek);
+  animateValue('card-ingresos-mes',    t.ingMonth);
+  animateValue('card-gastos-semana',   t.gasWeek);
+  animateValue('card-gastos-mes',      t.gasMonth);
+  animateValue('card-ahorro-usd',      t.ahorroUSD);
+  animateValue('card-ahorro-cop',      t.ahorroCOP);
+  animateValue('card-inversion',       t.inversion);
 
   const dispEl = document.getElementById('card-disponible');
-  dispEl.textContent = fmtUSD(t.disponible);
-  dispEl.style.color = t.disponible < 0 ? 'var(--accent-red)' : 'var(--accent-purple)';
+  if (dispEl) {
+    dispEl.textContent = fmtUSD(t.disponible);
+    dispEl.style.color = t.disponible < 0 ? 'var(--accent-red)' : 'var(--accent-blue)';
+  }
 
   // Distribution bar
   const c = state.config;
   const total = c.pct_gastos + c.pct_ahorro_usd + c.pct_ahorro_cop + c.pct_inversion || 100;
-  const distGastos = document.getElementById('dist-gastos');
+  const distGastos    = document.getElementById('dist-gastos');
   const distAhorroUsd = document.getElementById('dist-ahorro-usd');
   const distAhorroCop = document.getElementById('dist-ahorro-cop');
   const distInversion = document.getElementById('dist-inversion');
 
-  if (distGastos)    distGastos.style.width     = (c.pct_gastos / total * 100) + '%';
-  if (distAhorroUsd) distAhorroUsd.style.width = (c.pct_ahorro_usd / total * 100) + '%';
-  if (distAhorroCop) distAhorroCop.style.width = (c.pct_ahorro_cop / total * 100) + '%';
-  if (distInversion) distInversion.style.width  = (c.pct_inversion / total * 100) + '%';
-
-  if (distGastos)    distGastos.querySelector('span').textContent     = `Gastos ${c.pct_gastos}%`;
-  if (distAhorroUsd) distAhorroUsd.querySelector('span').textContent = `Ahorro USD ${c.pct_ahorro_usd}%`;
-  if (distAhorroCop) distAhorroCop.querySelector('span').textContent = `Ahorro COP ${c.pct_ahorro_cop}%`;
-  if (distInversion) distInversion.querySelector('span').textContent  = `Inversión ${c.pct_inversion}%`;
+  if (distGastos)    { distGastos.style.width    = (c.pct_gastos     / total * 100) + '%'; distGastos.querySelector('span').textContent    = `Gastos ${c.pct_gastos}%`; }
+  if (distAhorroUsd) { distAhorroUsd.style.width = (c.pct_ahorro_usd / total * 100) + '%'; distAhorroUsd.querySelector('span').textContent = `USD ${c.pct_ahorro_usd}%`; }
+  if (distAhorroCop) { distAhorroCop.style.width = (c.pct_ahorro_cop / total * 100) + '%'; distAhorroCop.querySelector('span').textContent = `COP ${c.pct_ahorro_cop}%`; }
+  if (distInversion) { distInversion.style.width = (c.pct_inversion  / total * 100) + '%'; distInversion.querySelector('span').textContent = `Inv ${c.pct_inversion}%`; }
 
   // Recurring expenses
   const grid = document.getElementById('recurringGrid');
   if (grid) {
     grid.innerHTML = state.recurring.map(r => `
-    <div class="recurring-item">
-      <div class="recurring-item-name">${CATEGORY_EMOJIS[r.categoria] || '📦'} ${r.nombre}</div>
-      <div class="recurring-item-amount">${fmtUSD(r.monto)}</div>
-      <div class="recurring-item-freq">${r.frecuencia}</div>
-    </div>
-  `).join('');
+      <div class="recurring-item">
+        <div class="recurring-item-name">${CATEGORY_EMOJIS[r.categoria] || '📦'} ${r.nombre}</div>
+        <div class="recurring-item-amount">${fmtUSD(r.monto)}</div>
+        <div class="recurring-item-freq">${r.frecuencia}</div>
+      </div>
+    `).join('');
   }
 
-  // Mini chart
   renderChartBalance();
+}
+
+// Animated number counter
+function animateValue(id, targetVal) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const formatted = fmtUSD(targetVal);
+  el.textContent = formatted;
+  el.style.transition = 'color 0.3s ease';
 }
 
 // ═══════════════════════════════════════════════
@@ -383,7 +357,7 @@ function renderIngresosPage() {
 function renderIngresosTable(data, tbodyId) {
   const tbody = document.getElementById(tbodyId);
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">Sin registros</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">Sin registros aún</div></div></td></tr>`;
     return;
   }
   tbody.innerHTML = data.map(i => `
@@ -406,16 +380,14 @@ function addIngreso() {
   const desc  = document.getElementById('ingreso-descripcion').value.trim();
   const monto = parseFloat(document.getElementById('ingreso-monto').value);
 
-  if (!fecha)            return toast('Selecciona una fecha', 'error');
-  if (!desc)             return toast('Agrega una descripción', 'error');
+  if (!fecha)               return toast('Selecciona una fecha', 'error');
+  if (!desc)                return toast('Agrega una descripción', 'error');
   if (!monto || monto <= 0) return toast('Monto inválido', 'error');
 
   const dist = calcDistribution(monto);
-
   const ingreso = { id: uid(), fecha, descripcion: desc, monto };
   state.ingresos.push(ingreso);
 
-  // Update accumulated savings/investment
   state.ahorro_usd += dist.ahorro_usd;
   state.ahorro_cop += dist.ahorro_cop;
   state.inversion  += dist.inversion;
@@ -423,7 +395,6 @@ function addIngreso() {
   saveState();
   toast(`Ingreso ${fmtUSD(monto)} registrado ✓`, 'success');
 
-  // Reset form
   document.getElementById('ingreso-fecha').value = todayStr();
   document.getElementById('ingreso-descripcion').value = '';
   document.getElementById('ingreso-monto').value = '';
@@ -474,10 +445,9 @@ function deleteIngreso(id) {
   saveState(); toast('Ingreso eliminado', 'info'); renderAll();
 }
 
-// Live preview distribution when typing amount
 function updateIngresoPreview() {
   const monto = parseFloat(document.getElementById('ingreso-monto').value);
-  const previewText = document.getElementById('ingreso-preview-text');
+  const previewText  = document.getElementById('ingreso-preview-text');
   const previewBreak = document.getElementById('ingreso-preview-breakdown');
 
   if (!monto || monto <= 0) {
@@ -491,10 +461,10 @@ function updateIngresoPreview() {
   previewBreak.style.display = 'flex';
 
   previewBreak.innerHTML = [
-    { label: 'Gastos',       val: fmtUSD(dist.gastos),     color: 'var(--accent-red)',    border: 'var(--accent-red)' },
-    { label: 'Ahorro USD',   val: fmtUSD(dist.ahorro_usd), color: 'var(--accent-green)',  border: 'var(--accent-green)' },
-    { label: 'Ahorro COP',   val: fmtUSD(dist.ahorro_cop), color: 'var(--accent-blue)',   border: 'var(--accent-blue)' },
-    { label: 'Inversión',    val: fmtUSD(dist.inversion),  color: 'var(--accent-amber)',  border: 'var(--accent-amber)' },
+    { label: 'Gastos',     val: fmtUSD(dist.gastos),     color: 'var(--accent-red)',    border: 'var(--accent-red)' },
+    { label: 'Ahorro USD', val: fmtUSD(dist.ahorro_usd), color: 'var(--accent-green)',  border: 'var(--accent-green)' },
+    { label: 'Ahorro COP', val: fmtUSD(dist.ahorro_cop), color: 'var(--accent-cyan)',   border: 'var(--accent-cyan)' },
+    { label: 'Inversión',  val: fmtUSD(dist.inversion),  color: 'var(--accent-amber)',  border: 'var(--accent-amber)' },
   ].map(item => `
     <div class="breakdown-item" style="border-left-color:${item.border}">
       <span class="breakdown-item-label">${item.label}</span>
@@ -515,7 +485,7 @@ function renderGastosPage() {
 function renderGastosTable(data, tbodyId) {
   const tbody = document.getElementById(tbodyId);
   if (!data.length) {
-    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">Sin registros</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><div class="empty-state-icon">📂</div><div class="empty-state-text">Sin registros aún</div></div></td></tr>`;
     return;
   }
   tbody.innerHTML = data.map(g => `
@@ -535,9 +505,9 @@ function renderGastosTable(data, tbodyId) {
 }
 
 function renderCategoryBreakdown() {
-  const cats = gastosPorCategoria();
+  const cats  = gastosPorCategoria();
   const total = Object.values(cats).reduce((a,v) => a+v, 0) || 1;
-  const el = document.getElementById('gastosCategoriasBreakdown');
+  const el    = document.getElementById('gastosCategoriasBreakdown');
 
   if (Object.keys(cats).length === 0) {
     el.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📊</div><div class="empty-state-text">Sin gastos este mes</div></div>`;
@@ -548,7 +518,7 @@ function renderCategoryBreakdown() {
     <div class="cat-row">
       <div class="cat-label">${CATEGORY_EMOJIS[cat] || ''} ${cat}</div>
       <div class="cat-bar-wrap">
-        <div class="cat-bar" style="width:${(val/total*100).toFixed(1)}%;background:${CATEGORY_COLORS[cat] || '#555'}"></div>
+        <div class="cat-bar" style="width:${(val/total*100).toFixed(1)}%;background:${CATEGORY_COLORS[cat] || '#64748b'}"></div>
       </div>
       <div class="cat-amount">${fmtUSD(val)}</div>
     </div>
@@ -556,25 +526,19 @@ function renderCategoryBreakdown() {
 }
 
 function addGasto() {
-  const fecha  = document.getElementById('gasto-fecha').value;
-  const cat    = document.getElementById('gasto-categoria').value;
-  const desc   = document.getElementById('gasto-descripcion').value.trim();
-  const monto  = parseFloat(document.getElementById('gasto-monto').value);
+  const fecha = document.getElementById('gasto-fecha').value;
+  const cat   = document.getElementById('gasto-categoria').value;
+  const desc  = document.getElementById('gasto-descripcion').value.trim();
+  const monto = parseFloat(document.getElementById('gasto-monto').value);
 
   if (!fecha)             return toast('Selecciona una fecha', 'error');
   if (!cat)               return toast('Selecciona una categoría', 'error');
   if (!desc)              return toast('Agrega una descripción', 'error');
   if (!monto || monto<=0) return toast('Monto inválido', 'error');
 
-  if (cat === 'Inversiones') {
-    state.inversion = Math.max(0, state.inversion - monto);
-  }
-  if (cat === 'Ahorro COP') {
-    state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
-  }
-  if (cat === 'Ahorro USD') {
-    state.ahorro_usd = Math.max(0, state.ahorro_usd - monto);
-  }
+  if (cat === 'Inversiones') state.inversion = Math.max(0, state.inversion - monto);
+  if (cat === 'Ahorro COP')  state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
+  if (cat === 'Ahorro USD')  state.ahorro_usd = Math.max(0, state.ahorro_usd - monto);
 
   const gasto = { id: uid(), fecha, categoria: cat, descripcion: desc, monto };
   state.gastos.push(gasto);
@@ -613,24 +577,12 @@ function editGasto(id) {
     const monto = parseFloat(document.getElementById('m-monto').value);
     if (!fecha || !cat || !desc || !monto) return toast('Completa todos los campos', 'error');
 
-    if (item.categoria === 'Inversiones') {
-      state.inversion += item.monto;
-    }
-    if (item.categoria === 'Ahorro COP') {
-      state.ahorro_cop += item.monto;
-    }
-    if (item.categoria === 'Ahorro USD') {
-      state.ahorro_usd += item.monto;
-    }
-    if (cat === 'Inversiones') {
-      state.inversion = Math.max(0, state.inversion - monto);
-    }
-    if (cat === 'Ahorro COP') {
-      state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
-    }
-    if (cat === 'Ahorro USD') {
-      state.ahorro_usd = Math.max(0, state.ahorro_usd - monto);
-    }
+    if (item.categoria === 'Inversiones') state.inversion  += item.monto;
+    if (item.categoria === 'Ahorro COP')  state.ahorro_cop += item.monto;
+    if (item.categoria === 'Ahorro USD')  state.ahorro_usd += item.monto;
+    if (cat === 'Inversiones') state.inversion  = Math.max(0, state.inversion  - monto);
+    if (cat === 'Ahorro COP')  state.ahorro_cop = Math.max(0, state.ahorro_cop - monto);
+    if (cat === 'Ahorro USD')  state.ahorro_usd = Math.max(0, state.ahorro_usd - monto);
 
     item.fecha = fecha; item.categoria = cat; item.descripcion = desc; item.monto = monto;
     saveState(); closeModal(); toast('Gasto actualizado ✓', 'success'); renderAll();
@@ -641,21 +593,15 @@ function deleteGasto(id) {
   const item = state.gastos.find(x => x.id === id);
   if (!item) return;
   if (!confirm(`¿Eliminar gasto de ${fmtUSD(item.monto)}?`)) return;
-  if (item.categoria === 'Inversiones') {
-    state.inversion += item.monto;
-  }
-  if (item.categoria === 'Ahorro COP') {
-    state.ahorro_cop += item.monto;
-  }
-  if (item.categoria === 'Ahorro USD') {
-    state.ahorro_usd += item.monto;
-  }
+  if (item.categoria === 'Inversiones') state.inversion  += item.monto;
+  if (item.categoria === 'Ahorro COP')  state.ahorro_cop += item.monto;
+  if (item.categoria === 'Ahorro USD')  state.ahorro_usd += item.monto;
   state.gastos = state.gastos.filter(x => x.id !== id);
   saveState(); toast('Gasto eliminado', 'info'); renderAll();
 }
 
 // ═══════════════════════════════════════════════
-// CHARTS
+// CHARTS — Light Theme 2026
 // ═══════════════════════════════════════════════
 
 const chartInstances = {};
@@ -668,20 +614,42 @@ const chartDefaults = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: { labels: { color: '#8b8d9e', font: { family: 'DM Mono', size: 11 }, padding: 16 } },
+    legend: {
+      labels: {
+        color: '#4B5068',
+        font: { family: 'DM Mono', size: 11 },
+        padding: 18,
+        usePointStyle: true,
+        pointStyleWidth: 8,
+      }
+    },
     tooltip: {
-      backgroundColor: '#1a1b23',
-      borderColor: 'rgba(255,255,255,0.1)',
+      backgroundColor: 'rgba(255,255,255,0.96)',
+      borderColor: 'rgba(0,0,0,0.08)',
       borderWidth: 1,
-      titleColor: '#f0f0f4',
-      bodyColor: '#8b8d9e',
-      padding: 12,
-      cornerRadius: 8,
+      titleColor: '#0A0A12',
+      bodyColor: '#4B5068',
+      padding: 14,
+      cornerRadius: 12,
+      titleFont: { family: 'Syne', weight: '700', size: 13 },
+      bodyFont: { family: 'DM Mono', size: 12 },
     },
   },
   scales: {
-    x: { ticks: { color: '#555769', font: { family: 'DM Mono', size: 10 } }, grid: { color: 'rgba(255,255,255,0.04)' } },
-    y: { ticks: { color: '#555769', font: { family: 'DM Mono', size: 10 }, callback: v => '$' + v.toLocaleString() }, grid: { color: 'rgba(255,255,255,0.04)' } },
+    x: {
+      ticks: { color: '#9AA0B8', font: { family: 'DM Mono', size: 10 }, maxRotation: 0 },
+      grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+      border: { display: false },
+    },
+    y: {
+      ticks: {
+        color: '#9AA0B8',
+        font: { family: 'DM Mono', size: 10 },
+        callback: v => '$' + v.toLocaleString(),
+      },
+      grid: { color: 'rgba(0,0,0,0.05)', drawBorder: false },
+      border: { display: false },
+    },
   },
 };
 
@@ -703,11 +671,39 @@ function renderChartBalance() {
     data: {
       labels: months.map(m => m.label),
       datasets: [
-        { label: 'Ingresos', data: months.map(m => m.total), borderColor: '#00e5a0', backgroundColor: 'rgba(0,229,160,0.08)', tension: 0.4, fill: true, pointBackgroundColor: '#00e5a0', pointRadius: 4 },
-        { label: 'Gastos',   data: gastosMes, borderColor: '#ff4f6b', backgroundColor: 'rgba(255,79,107,0.08)', tension: 0.4, fill: true, pointBackgroundColor: '#ff4f6b', pointRadius: 4 },
+        {
+          label: 'Ingresos',
+          data: months.map(m => m.total),
+          borderColor: '#10B981',
+          backgroundColor: 'rgba(16,185,129,0.08)',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#10B981',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2.5,
+        },
+        {
+          label: 'Gastos',
+          data: gastosMes,
+          borderColor: '#EF4444',
+          backgroundColor: 'rgba(239,68,68,0.06)',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#EF4444',
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          borderWidth: 2.5,
+        },
       ],
     },
-    options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend: { ...chartDefaults.plugins.legend, position: 'top' } } },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        ...chartDefaults.plugins,
+        legend: { ...chartDefaults.plugins.legend, position: 'top' }
+      }
+    },
   });
 }
 
@@ -716,20 +712,25 @@ function renderGraficosPage() {
   destroyChart('chartGastosCat');
   const ctx1 = document.getElementById('chartGastosCat');
   if (ctx1) {
-    const cats = gastosPorCategoria();
+    const cats   = gastosPorCategoria();
     const labels = Object.keys(cats);
     const data   = Object.values(cats);
-    const colors = labels.map(l => CATEGORY_COLORS[l] || '#64748b');
+    const colors = labels.map(l => CATEGORY_COLORS[l] || '#94A3B8');
 
     chartInstances['chartGastosCat'] = new Chart(ctx1, {
       type: 'doughnut',
       data: {
         labels,
-        datasets: [{ data, backgroundColor: colors, borderColor: '#13141a', borderWidth: 3, hoverOffset: 8 }],
+        datasets: [{ data, backgroundColor: colors, borderColor: '#FFFFFF', borderWidth: 3, hoverOffset: 8 }],
       },
       options: {
-        responsive: true, maintainAspectRatio: false, cutout: '70%',
-        plugins: { ...chartDefaults.plugins, legend: { ...chartDefaults.plugins.legend, position: 'right' } },
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: {
+          ...chartDefaults.plugins,
+          legend: { ...chartDefaults.plugins.legend, position: 'right' }
+        },
       },
     });
   }
@@ -743,7 +744,15 @@ function renderGraficosPage() {
       type: 'bar',
       data: {
         labels: months.map(m => m.label),
-        datasets: [{ label: 'Ingresos USD', data: months.map(m => m.total), backgroundColor: 'rgba(0,229,160,0.7)', borderColor: '#00e5a0', borderWidth: 1, borderRadius: 6 }],
+        datasets: [{
+          label: 'Ingresos USD',
+          data: months.map(m => m.total),
+          backgroundColor: 'rgba(79,70,229,0.15)',
+          borderColor: '#4F46E5',
+          borderWidth: 2,
+          borderRadius: 8,
+          borderSkipped: false,
+        }],
       },
       options: chartDefaults,
     });
@@ -758,7 +767,18 @@ function renderGraficosPage() {
       type: 'line',
       data: {
         labels: months.map(m => m.label),
-        datasets: [{ label: 'Ahorro USD', data: months.map(m => m.total), borderColor: '#4f8cff', backgroundColor: 'rgba(79,140,255,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#4f8cff', pointRadius: 5 }],
+        datasets: [{
+          label: 'Ahorro USD',
+          data: months.map(m => m.total),
+          borderColor: '#06B6D4',
+          backgroundColor: 'rgba(6,182,212,0.08)',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#06B6D4',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          borderWidth: 2.5,
+        }],
       },
       options: chartDefaults,
     });
@@ -773,7 +793,18 @@ function renderGraficosPage() {
       type: 'line',
       data: {
         labels: months.map(m => m.label),
-        datasets: [{ label: 'Patrimonio Neto', data: months.map(m => m.total), borderColor: '#a78bfa', backgroundColor: 'rgba(167,139,250,0.1)', tension: 0.4, fill: true, pointBackgroundColor: '#a78bfa', pointRadius: 5 }],
+        datasets: [{
+          label: 'Patrimonio Neto',
+          data: months.map(m => m.total),
+          borderColor: '#8B5CF6',
+          backgroundColor: 'rgba(139,92,246,0.08)',
+          tension: 0.4,
+          fill: true,
+          pointBackgroundColor: '#8B5CF6',
+          pointRadius: 5,
+          pointHoverRadius: 7,
+          borderWidth: 2.5,
+        }],
       },
       options: chartDefaults,
     });
@@ -791,15 +822,15 @@ function renderReportesPage() {
 
 function renderReporteSemanal() {
   const range = getWeekRange();
-  const ing  = state.ingresos.filter(i => inRange(i.fecha, range)).reduce((a,x) => a+x.monto, 0);
-  const gas  = state.gastos.filter(g => inRange(g.fecha, range)).reduce((a,x) => a+x.monto, 0) + weeklyRecurringCost();
-  const bal  = ing - gas;
+  const ing = state.ingresos.filter(i => inRange(i.fecha, range)).reduce((a,x) => a+x.monto, 0);
+  const gas = state.gastos.filter(g => inRange(g.fecha, range)).reduce((a,x) => a+x.monto, 0) + weeklyRecurringCost();
+  const bal = ing - gas;
 
   const el = document.getElementById('reporteSemanalGrid');
   el.innerHTML = [
-    { label: 'Ingresos',  val: fmtUSD(ing),  color: 'var(--accent-green)', sub: 'Esta semana' },
-    { label: 'Gastos',    val: fmtUSD(gas),  color: 'var(--accent-red)',   sub: 'Esta semana' },
-    { label: 'Balance',   val: fmtUSD(bal),  color: bal >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', sub: 'Diferencia' },
+    { label: 'Ingresos', val: fmtUSD(ing), color: 'var(--accent-green)',  sub: 'Esta semana' },
+    { label: 'Gastos',   val: fmtUSD(gas), color: 'var(--accent-red)',    sub: 'Esta semana' },
+    { label: 'Balance',  val: fmtUSD(bal), color: bal >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', sub: 'Diferencia' },
   ].map(c => `
     <div class="report-card">
       <div class="report-card-label">${c.label}</div>
@@ -820,11 +851,11 @@ function renderReporteMensual() {
 
   const el = document.getElementById('reporteMensualGrid');
   el.innerHTML = [
-    { label: 'Total Ingresado',  val: fmtUSD(ing),    color: 'var(--accent-green)',  sub: 'Este mes' },
-    { label: 'Total Gastado',    val: fmtUSD(gas),    color: 'var(--accent-red)',    sub: 'Incluye recurrentes' },
-    { label: 'Total Ahorrado',   val: fmtUSD(ahorro), color: 'var(--accent-blue)',   sub: 'USD este mes' },
-    { label: 'Total Invertido',  val: fmtUSD(inv),    color: 'var(--accent-amber)',  sub: 'Este mes' },
-    { label: 'Balance Final',    val: fmtUSD(bal),    color: bal >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', sub: 'Ingresos − Gastos' },
+    { label: 'Total Ingresado', val: fmtUSD(ing),    color: 'var(--accent-green)',  sub: 'Este mes' },
+    { label: 'Total Gastado',   val: fmtUSD(gas),    color: 'var(--accent-red)',    sub: 'Incluye recurrentes' },
+    { label: 'Total Ahorrado',  val: fmtUSD(ahorro), color: 'var(--accent-cyan)',   sub: 'USD este mes' },
+    { label: 'Total Invertido', val: fmtUSD(inv),    color: 'var(--accent-amber)',  sub: 'Este mes' },
+    { label: 'Balance Final',   val: fmtUSD(bal),    color: bal >= 0 ? 'var(--accent-green)' : 'var(--accent-red)', sub: 'Ingresos − Gastos' },
   ].map(c => `
     <div class="report-card">
       <div class="report-card-label">${c.label}</div>
@@ -875,7 +906,7 @@ function renderInteligenciaPage() {
 
   const dist = calcDistribution(ingMes);
   const tasaAhorro = ingMes > 0 ? ((dist.ahorro_usd / ingMes) * 100).toFixed(1) : 0;
-  const cats = gastosPorCategoria();
+  const cats   = gastosPorCategoria();
   const topCat = Object.entries(cats).sort((a,b) => b[1]-a[1])[0];
 
   const ahorroMes  = state.ingresos.filter(i => inRange(i.fecha, month)).reduce((a,x) => a+calcDistribution(x.monto).ahorro_usd, 0);
@@ -883,14 +914,12 @@ function renderInteligenciaPage() {
 
   const insights = [];
 
-  // Tasa de ahorro
   insights.push({
     type: parseFloat(tasaAhorro) >= 20 ? 'positive' : 'warning',
     icon: '💰',
     text: `Tu <strong>tasa de ahorro es del ${tasaAhorro}%</strong> este mes. ${parseFloat(tasaAhorro) >= 20 ? 'Excelente — estás por encima del 20% recomendado.' : 'Lo ideal es ahorrar al menos un 20% de tus ingresos.'}`,
   });
 
-  // Top spending category
   if (topCat) {
     const pct = (topCat[1] / (gasMes || 1) * 100).toFixed(1);
     insights.push({
@@ -900,7 +929,6 @@ function renderInteligenciaPage() {
     });
   }
 
-  // Savings comparison
   if (ingPrev > 0) {
     const diff = ahorroMes - ahorroPrev;
     insights.push({
@@ -912,7 +940,6 @@ function renderInteligenciaPage() {
     });
   }
 
-  // Available investment potential
   const extraInv = Math.max(0, t.disponible * 0.5);
   if (extraInv > 0) {
     insights.push({
@@ -922,7 +949,6 @@ function renderInteligenciaPage() {
     });
   }
 
-  // Recurring expenses percentage
   const recPct = ingMes > 0 ? (monthlyRecurringCost() / ingMes * 100).toFixed(1) : 0;
   insights.push({
     type: parseFloat(recPct) > 50 ? 'negative' : 'info',
@@ -930,7 +956,6 @@ function renderInteligenciaPage() {
     text: `Tus gastos recurrentes representan el <strong>${recPct}% de tus ingresos</strong> (${fmtUSD(monthlyRecurringCost())}/mes). ${parseFloat(recPct) > 50 ? 'Atención: más de la mitad de tus ingresos están comprometidos.' : 'Mantén este nivel para tener flexibilidad.'}`,
   });
 
-  // Balance this month
   const bal = ingMes - gasMes;
   insights.push({
     type: bal >= 0 ? 'positive' : 'negative',
@@ -948,14 +973,13 @@ function renderInteligenciaPage() {
     </div>
   `).join('');
 
-  // Metrics
   const metrics = [
-    { label: 'Tasa de Ahorro',     val: `${tasaAhorro}%`,            color: 'var(--accent-green)' },
-    { label: 'Gastos Recurrentes', val: fmtUSD(monthlyRecurringCost()), color: 'var(--accent-red)' },
-    { label: 'Ahorro Acumulado',   val: fmtUSD(state.ahorro_usd),    color: 'var(--accent-blue)' },
-    { label: 'Inversión Total',    val: fmtUSD(state.inversion),     color: 'var(--accent-amber)' },
+    { label: 'Tasa de Ahorro',     val: `${tasaAhorro}%`,               color: 'var(--accent-green)'  },
+    { label: 'Gastos Recurrentes', val: fmtUSD(monthlyRecurringCost()),  color: 'var(--accent-red)'    },
+    { label: 'Ahorro Acumulado',   val: fmtUSD(state.ahorro_usd),        color: 'var(--accent-cyan)'   },
+    { label: 'Inversión Total',    val: fmtUSD(state.inversion),         color: 'var(--accent-amber)'  },
     { label: 'Patrimonio',         val: fmtUSD(t.ingTotal - t.gasTotal - monthlyRecurringCost() * 6), color: 'var(--accent-purple)' },
-    { label: 'Balance Mensual',    val: fmtUSD(ingMes - gasMes),     color: (ingMes - gasMes) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)' },
+    { label: 'Balance Mensual',    val: fmtUSD(ingMes - gasMes),         color: (ingMes - gasMes) >= 0 ? 'var(--accent-green)' : 'var(--accent-red)' },
   ];
 
   document.getElementById('metricsGrid').innerHTML = metrics.map(m => `
@@ -972,12 +996,11 @@ function renderInteligenciaPage() {
 
 function renderConfigPage() {
   const c = state.config;
-  document.getElementById('cfg-gastos').value      = c.pct_gastos;
-  document.getElementById('cfg-ahorro-usd').value  = c.pct_ahorro_usd;
-  // Ahorro COP funciona igual que Inversiones
-  document.getElementById('cfg-ahorro-cop').value  = c.pct_inversion;
-  document.getElementById('cfg-inversion').value   = c.pct_inversion;
-  document.getElementById('cfg-tasa-cop').value    = c.tasa_cop;
+  document.getElementById('cfg-gastos').value     = c.pct_gastos;
+  document.getElementById('cfg-ahorro-usd').value = c.pct_ahorro_usd;
+  document.getElementById('cfg-ahorro-cop').value = c.pct_inversion;
+  document.getElementById('cfg-inversion').value  = c.pct_inversion;
+  document.getElementById('cfg-tasa-cop').value   = c.tasa_cop;
   updateConfigPctLabels();
   renderRecurringMgmt();
 }
@@ -993,7 +1016,6 @@ function updateConfigPctLabels() {
   document.getElementById('cfg-ahorro-usd-pct').textContent = au + '%';
   document.getElementById('cfg-ahorro-cop-pct').textContent = iv + '%';
   document.getElementById('cfg-inversion-pct').textContent  = iv + '%';
-
   document.getElementById('cfg-ahorro-cop').value = iv;
 
   const totalEl = document.getElementById('cfg-total-pct');
@@ -1098,7 +1120,7 @@ function toast(msg, type = 'info') {
   setTimeout(() => {
     el.classList.add('removing');
     setTimeout(() => el.remove(), 280);
-  }, 3200);
+  }, 3400);
 }
 
 // ═══════════════════════════════════════════════
@@ -1106,31 +1128,27 @@ function toast(msg, type = 'info') {
 // ═══════════════════════════════════════════════
 
 const PAGE_TITLES = {
-  dashboard: 'Dashboard',
-  ingresos: 'Ingresos',
-  gastos: 'Gastos',
-  graficos: 'Gráficos',
-  reportes: 'Reportes',
-  historial: 'Historial',
-  inteligencia: 'Análisis IA',
+  dashboard:     'Dashboard',
+  ingresos:      'Ingresos',
+  gastos:        'Gastos',
+  graficos:      'Gráficos',
+  reportes:      'Reportes',
+  historial:     'Historial',
+  inteligencia:  'Análisis IA',
   configuracion: 'Configuración',
 };
 
 function navigateTo(page) {
-  // Update nav items
   document.querySelectorAll('.nav-item').forEach(el => {
     el.classList.toggle('active', el.dataset.page === page);
   });
 
-  // Show/hide pages
   document.querySelectorAll('.page').forEach(el => {
     el.classList.toggle('active', el.id === `page-${page}`);
   });
 
-  // Update topbar title
   document.getElementById('topbarTitle').textContent = PAGE_TITLES[page] || page;
 
-  // Render page content
   switch(page) {
     case 'dashboard':      renderDashboard(); break;
     case 'ingresos':       renderIngresosPage(); break;
@@ -1142,8 +1160,19 @@ function navigateTo(page) {
     case 'configuracion':  renderConfigPage(); break;
   }
 
-  // Close mobile sidebar
   closeMobileSidebar();
+
+  // Animate sections and re-apply effects
+  const activePage = document.getElementById(`page-${page}`);
+  if (activePage) animatePageSections(activePage);
+
+  setTimeout(() => {
+    initTiltEffect('.card');
+    initTiltEffect('.report-card');
+    initTiltEffect('.insight-card');
+    initTiltEffect('.metric-item');
+    initMagneticButtons();
+  }, 60);
 }
 
 // ═══════════════════════════════════════════════
@@ -1230,6 +1259,152 @@ function renderAll() {
 }
 
 // ═══════════════════════════════════════════════
+// ANIMATIONS — 3D Tilt Effect
+// ═══════════════════════════════════════════════
+
+function initTiltEffect(selector) {
+  document.querySelectorAll(selector).forEach(card => {
+    if (card.dataset.tiltInit) return;
+    card.dataset.tiltInit = '1';
+
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      const cx = rect.width  / 2;
+      const cy = rect.height / 2;
+      const rx = (y - cy) / cy * -5;
+      const ry = (x - cx) / cx * 5;
+      card.style.transform = `perspective(900px) rotateX(${rx}deg) rotateY(${ry}deg) scale3d(1.01,1.01,1.01)`;
+      card.style.transition = 'transform 0.08s ease';
+
+      // Dynamic highlight
+      const pctX = (x / rect.width  * 100).toFixed(1);
+      const pctY = (y / rect.height * 100).toFixed(1);
+      card.style.background = `radial-gradient(circle at ${pctX}% ${pctY}%, rgba(79,70,229,0.04) 0%, transparent 60%), var(--bg-card)`;
+    });
+
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(900px) rotateX(0) rotateY(0) scale3d(1,1,1)';
+      card.style.transition = 'transform 0.5s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, border-color 0.2s ease';
+      card.style.background = '';
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ANIMATIONS — Magnetic Buttons
+// ═══════════════════════════════════════════════
+
+function initMagneticButtons() {
+  document.querySelectorAll('.btn-primary, .btn-danger').forEach(btn => {
+    if (btn.dataset.magInit) return;
+    btn.dataset.magInit = '1';
+
+    btn.addEventListener('mousemove', (e) => {
+      const rect = btn.getBoundingClientRect();
+      const x = e.clientX - rect.left - rect.width  / 2;
+      const y = e.clientY - rect.top  - rect.height / 2;
+      btn.style.transform = `translate(${x * 0.18}px, ${y * 0.18}px) translateY(-2px)`;
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      btn.style.transform = '';
+      btn.style.transition = 'transform 0.4s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease, filter 0.15s ease';
+    });
+
+    btn.addEventListener('mouseenter', () => {
+      btn.style.transition = 'transform 0.12s ease, box-shadow 0.2s ease, filter 0.15s ease';
+    });
+
+    btn.addEventListener('mousedown', () => {
+      btn.style.transform += ' scale(0.96)';
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ANIMATIONS — Custom Cursor
+// ═══════════════════════════════════════════════
+
+function initCustomCursor() {
+  const dot  = document.getElementById('cursorDot');
+  const ring = document.getElementById('cursorRing');
+  if (!dot || !ring) return;
+
+  // Hide on touch devices
+  if ('ontouchstart' in window) {
+    dot.style.display  = 'none';
+    ring.style.display = 'none';
+    return;
+  }
+
+  let mouseX = 0, mouseY = 0;
+  let ringX = 0, ringY = 0;
+
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    dot.style.left = mouseX + 'px';
+    dot.style.top  = mouseY + 'px';
+  });
+
+  function animateRing() {
+    ringX += (mouseX - ringX) * 0.14;
+    ringY += (mouseY - ringY) * 0.14;
+    ring.style.left = ringX + 'px';
+    ring.style.top  = ringY + 'px';
+    requestAnimationFrame(animateRing);
+  }
+  requestAnimationFrame(animateRing);
+
+  // Hover state on interactive elements
+  const interactiveSelector = 'button, a, .nav-item, .card, .report-card, .insight-card, .metric-item, .chart-card, .tbl-btn, .tab-btn, input, select';
+
+  document.addEventListener('mouseover', (e) => {
+    if (e.target.matches(interactiveSelector) || e.target.closest(interactiveSelector)) {
+      ring.classList.add('cursor-ring--hover');
+      dot.classList.add('cursor-dot--hover');
+    }
+  });
+
+  document.addEventListener('mouseout', (e) => {
+    if (e.target.matches(interactiveSelector) || e.target.closest(interactiveSelector)) {
+      ring.classList.remove('cursor-ring--hover');
+      dot.classList.remove('cursor-dot--hover');
+    }
+  });
+
+  document.addEventListener('mousedown', () => {
+    ring.style.transform = 'translate(-50%, -50%) scale(0.85)';
+  });
+
+  document.addEventListener('mouseup', () => {
+    ring.style.transform = 'translate(-50%, -50%) scale(1)';
+  });
+}
+
+// ═══════════════════════════════════════════════
+// ANIMATIONS — Page section stagger
+// ═══════════════════════════════════════════════
+
+function animatePageSections(pageEl) {
+  const targets = pageEl.querySelectorAll('.form-card, .chart-card, .section-block, .dashboard-panel, .dist-panel, .dashboard-bottom');
+  targets.forEach((el, i) => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(18px)';
+    el.style.transition = 'none';
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.style.transition = `opacity 0.35s ease ${i * 55}ms, transform 0.45s cubic-bezier(0.34,1.56,0.64,1) ${i * 55}ms`;
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      });
+    });
+  });
+}
+
+// ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
 
@@ -1237,8 +1412,7 @@ function init() {
   loadState();
 
   // Set today date on forms
-  const todayInputs = ['ingreso-fecha', 'gasto-fecha'];
-  todayInputs.forEach(id => {
+  ['ingreso-fecha', 'gasto-fecha'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = todayStr();
   });
@@ -1262,7 +1436,7 @@ function init() {
   document.getElementById('mobileMenuBtn').addEventListener('click', openMobileSidebar);
   document.getElementById('sidebarOverlay').addEventListener('click', closeMobileSidebar);
 
-  // Refresh button
+  // Refresh
   document.getElementById('refreshBtn').addEventListener('click', () => {
     renderAll();
     toast('Datos actualizados ✓', 'info');
@@ -1316,7 +1490,7 @@ function init() {
     }
   });
 
-  // Modal buttons
+  // Modal
   document.getElementById('modalClose').addEventListener('click', closeModal);
   document.getElementById('modalCancel').addEventListener('click', closeModal);
   document.getElementById('modalSave').addEventListener('click', () => {
@@ -1326,12 +1500,14 @@ function init() {
     if (e.target === e.currentTarget) closeModal();
   });
 
-  // Init tabs
+  // Tabs
   initTabs();
+
+  // Premium animations
+  initCustomCursor();
 
   // Initial render
   navigateTo('dashboard');
 }
 
-// Start the app when DOM is ready
 document.addEventListener('DOMContentLoaded', init);
